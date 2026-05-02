@@ -503,7 +503,7 @@
         </div>
         <div class="text-right">
           <p class="text-[11px] text-slate-500">Restantes</p>
-          <p id="joven-counter" class="text-base font-bold text-navy-900">6</p>
+          <p id="joven-counter" class="text-base font-bold text-navy-900">10</p>
         </div>
       </header>
 
@@ -703,7 +703,7 @@
         </div>
         <div class="text-right">
           <p class="text-[11px] text-slate-500">Restantes</p>
-          <p id="inv-counter" class="text-base font-bold text-navy-900">6</p>
+          <p id="inv-counter" class="text-base font-bold text-navy-900">10</p>
         </div>
       </header>
 
@@ -820,7 +820,7 @@
         id: 'vnd-hip',
         tipo: 'Token',
         nombre: 'Token VND-Hipotecario',
-        sub: 'Stablecoin atada a UVA',
+        sub: 'Stablecoin atada a UVA · alcance PBA',
         tasa: '4% UVA',
         tasaNum: 4,
         plazo: '20 años',
@@ -837,7 +837,7 @@
         id: 'raiz',
         tipo: 'Token',
         nombre: 'Token Raíz',
-        sub: 'Instrumento DeFi tokenizado',
+        sub: 'Instrumento DeFi · sandbox CNV',
         tasa: '6% UVA',
         tasaNum: 6,
         plazo: '15 años',
@@ -853,8 +853,8 @@
       {
         id: 'hornero',
         tipo: 'Cooperativa',
-        nombre: 'Cooperativa "El Hornero" Ltda.',
-        sub: 'Quilmes, Bonaerense',
+        nombre: 'Cooperativa "El Hornero" América Ltda.',
+        sub: 'América · partido de Rivadavia',
         tasa: '3.5% UVA',
         tasaNum: 3.5,
         plazo: '25 años',
@@ -870,14 +870,14 @@
       {
         id: 'tierra-propia',
         tipo: 'Cooperativa',
-        nombre: 'Cooperativa "Tierra Propia" Ltda.',
-        sub: 'Mar del Plata',
+        nombre: 'Cooperativa "Tierra Propia" Rivadavia Ltda.',
+        sub: 'Casco urbano de América',
         tasa: '4.2% UVA',
         tasaNum: 4.2,
         plazo: '20 años',
         plazoNum: 20,
         monto: 'Hasta $85M',
-        requisitos: 'Residencia PBA · ingresos formales',
+        requisitos: 'Residencia en el partido · ingresos formales',
         custodia: 'Banco Provincia',
         regulador: 'INAES',
         icon: 'house',
@@ -885,10 +885,10 @@
         matchOnAccept: false
       },
       {
-        id: 'raices-sur',
+        id: 'raices-oeste',
         tipo: 'Mutual',
-        nombre: 'Mutual "Raíces del Sur"',
-        sub: 'La Plata',
+        nombre: 'Mutual "Raíces del Oeste" América',
+        sub: 'Centro mutualista de América',
         tasa: '3.8% UVA',
         tasaNum: 3.8,
         plazo: '22 años',
@@ -902,10 +902,10 @@
         matchOnAccept: true
       },
       {
-        id: 'habitar',
+        id: 'habitar-riv',
         tipo: 'Cooperativa',
-        nombre: 'Cooperativa Habitar Bonaerense',
-        sub: 'Zona norte PBA',
+        nombre: 'Cooperativa Habitar Rivadavia',
+        sub: 'Vivienda profesional joven · Rivadavia',
         tasa: '4.5% UVA',
         tasaNum: 4.5,
         plazo: '18 años',
@@ -915,6 +915,74 @@
         custodia: 'Banco Nación',
         regulador: 'INAES',
         icon: 'building',
+        accent: 'navy',
+        matchOnAccept: false
+      },
+      {
+        id: 'mutual-municipales',
+        tipo: 'Mutual',
+        nombre: 'Mutual Empleados Municipales Rivadavia',
+        sub: 'Empleados públicos del partido',
+        tasa: '3.2% UVA',
+        tasaNum: 3.2,
+        plazo: '25 años',
+        plazoNum: 25,
+        monto: 'Hasta $90M',
+        requisitos: 'Empleado municipal con ≥ 2 años de antigüedad',
+        custodia: 'Banco Provincia',
+        regulador: 'INAES',
+        icon: 'briefcase',
+        accent: 'accent',
+        matchOnAccept: true
+      },
+      {
+        id: 'agraria-america',
+        tipo: 'Cooperativa',
+        nombre: 'Cooperativa Agraria de América Ltda.',
+        sub: 'Línea habitacional para socios productores',
+        tasa: '3.9% UVA',
+        tasaNum: 3.9,
+        plazo: '22 años',
+        plazoNum: 22,
+        monto: 'Hasta $115M',
+        requisitos: 'Productor asociado o familia directa',
+        custodia: 'Banco Credicoop',
+        regulador: 'INAES',
+        icon: 'wheat',
+        accent: 'accent',
+        matchOnAccept: true
+      },
+      {
+        id: 'vivir-rivadavia',
+        tipo: 'Municipal',
+        nombre: 'Programa "Vivir en Rivadavia"',
+        sub: 'Plan municipal subsidiado de vivienda joven',
+        tasa: '2.5% UVA',
+        tasaNum: 2.5,
+        plazo: '30 años',
+        plazoNum: 30,
+        monto: 'Hasta $70M',
+        requisitos: 'Residente del partido · primera vivienda · < 35 años',
+        custodia: 'Banco Provincia',
+        regulador: 'IVBA · Municipio Rivadavia',
+        icon: 'landmark',
+        accent: 'accent',
+        matchOnAccept: true
+      },
+      {
+        id: 'electrica-america',
+        tipo: 'Cooperativa',
+        nombre: 'Coop. Eléctrica de América — Plan Habitar',
+        sub: 'Línea habitacional · socios consumidores',
+        tasa: '4.0% UVA',
+        tasaNum: 4.0,
+        plazo: '20 años',
+        plazoNum: 20,
+        monto: 'Hasta $80M',
+        requisitos: 'Socio activo ≥ 12 meses, sin atrasos',
+        custodia: 'Banco Provincia',
+        regulador: 'INAES',
+        icon: 'zap',
         accent: 'navy',
         matchOnAccept: false
       }
@@ -1015,6 +1083,70 @@
         subscores: [7.6, 7.8, 8.2, 8.0],
         narrative: 'Estudio contable en el casco urbano de América, casado, planea expandir su familia.',
         calce: 85,
+        matchOnAccept: true
+      },
+      {
+        id: 'florencia',
+        initials: 'FC',
+        name: 'Florencia Cabral',
+        age: 25,
+        profession: 'Enfermera profesional',
+        education: 'ISFD América',
+        ciudad: 'América (Rivadavia)',
+        monto: 55_000_000,
+        plazo: 25,
+        score: 7.4,
+        subscores: [6.2, 9.5, 7.6, 6.4],
+        narrative: 'Enfermera del hospital municipal Dr. Saturnino Unzué, vínculo familiar fuerte con América.',
+        calce: 80,
+        matchOnAccept: true
+      },
+      {
+        id: 'diego',
+        initials: 'DS',
+        name: 'Diego Salazar',
+        age: 32,
+        profession: 'Abogado',
+        education: 'UBA',
+        ciudad: 'América (Rivadavia)',
+        monto: 105_000_000,
+        plazo: 18,
+        score: 8.3,
+        subscores: [8.5, 7.5, 8.7, 8.4],
+        narrative: 'Estudio jurídico en el casco urbano de América, asesora cooperativas y mutuales locales.',
+        calce: 87,
+        matchOnAccept: false
+      },
+      {
+        id: 'valentina',
+        initials: 'VI',
+        name: 'Valentina Iglesias',
+        age: 28,
+        profession: 'Arquitecta',
+        education: 'UNLP',
+        ciudad: 'América (Rivadavia)',
+        monto: 78_000_000,
+        plazo: 22,
+        score: 7.7,
+        subscores: [7.4, 8.2, 8.0, 7.2],
+        narrative: 'Arquitecta especializada en vivienda rural, proyecta construcciones en el partido de Rivadavia.',
+        calce: 84,
+        matchOnAccept: true
+      },
+      {
+        id: 'nicolas',
+        initials: 'NB',
+        name: 'Nicolás Bermúdez',
+        age: 30,
+        profession: 'Productor agropecuario',
+        education: 'Escuela Agrotécnica + UNLPam',
+        ciudad: 'América (Rivadavia)',
+        monto: 92_000_000,
+        plazo: 20,
+        score: 8.0,
+        subscores: [7.2, 9.7, 8.5, 7.5],
+        narrative: 'Productor agropecuario familiar de tercera generación, busca vivienda urbana cerca del campo.',
+        calce: 90,
         matchOnAccept: true
       }
     ]
