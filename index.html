@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Vinder — hacé match con tu casa</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy: {
+            50: '#f1f5fa',
+            100: '#e1e9f3',
+            200: '#c2d2e6',
+            300: '#94aecc',
+            400: '#5e83ad',
+            500: '#3e6491',
+            600: '#2c4d77',
+            700: '#1e3a5f',
+            800: '#142a48',
+            900: '#0a1d33',
+            950: '#06121f'
+          },
+          accent: {
+            50: '#ecfdf5',
+            100: '#d1fae5',
+            200: '#a7f3d0',
+            300: '#6ee7b7',
+            400: '#34d399',
+            500: '#10b981',
+            600: '#059669',
+            700: '#047857'
+          }
+        },
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif']
+        },
+        boxShadow: {
+          card: '0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.08)',
+          float: '0 20px 50px rgba(15, 23, 42, 0.18)'
+        }
+      }
+    }
+  };
+</script>
+<style>
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #eef2f7;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  .device-wrap {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .device {
+    position: relative;
+    width: 100%;
+    max-width: 430px;
+    height: 100vh;
+    background: #ffffff;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  @media (min-width: 768px) {
+    .device-wrap { padding: 28px; }
+    .device {
+      height: min(900px, calc(100vh - 56px));
+      border-radius: 38px;
+      border: 10px solid #0a1d33;
+      box-shadow: 0 28px 70px rgba(10, 29, 51, 0.35), 0 4px 12px rgba(10,29,51,0.18);
+    }
+  }
+
+  .screen {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #ffffff;
+  }
+  .screen.active { display: flex; }
+  .screen::-webkit-scrollbar { width: 0; }
+
+  /* Bottom nav */
+  .bottom-nav {
+    border-top: 1px solid #e5ecf3;
+    background: #ffffff;
+    display: flex;
+    align-items: stretch;
+    padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+  }
+  .bottom-nav button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 6px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 500;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    transition: color 150ms ease;
+  }
+  .bottom-nav button.active { color: #0a1d33; }
+  .bottom-nav button .dot {
+    width: 4px; height: 4px; border-radius: 999px;
+    background: transparent; margin-top: 2px;
+  }
+  .bottom-nav button.active .dot { background: #10b981; }
+
+  /* Score bars */
+  .bar-track { background: #e5ecf3; height: 6px; border-radius: 999px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #1e3a5f, #10b981); }
+
+  /* Swipe cards */
+  .stack {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    perspective: 1200px;
+  }
+  .swipe-card {
+    position: absolute;
+    inset: 0;
+    background: #ffffff;
+    border: 1px solid #e5ecf3;
+    border-radius: 22px;
+    box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 12px 30px rgba(15,23,42,0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 360ms cubic-bezier(.22,.61,.36,1), opacity 360ms ease;
+    will-change: transform, opacity;
+  }
+  .swipe-card.is-out-right { transform: translateX(135%) rotate(6deg); opacity: 0; }
+  .swipe-card.is-out-left { transform: translateX(-135%) rotate(-6deg); opacity: 0; }
+  .swipe-card[data-stack="1"] { transform: translateY(10px) scale(0.96); opacity: 0.85; }
+  .swipe-card[data-stack="2"] { transform: translateY(20px) scale(0.92); opacity: 0.6; }
+  .swipe-card[data-stack="3"] { transform: translateY(28px) scale(0.88); opacity: 0; pointer-events: none; }
+
+  /* Action buttons (reject / accept) */
+  .swipe-action {
+    width: 56px; height: 56px; border-radius: 999px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid transparent;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+    cursor: pointer;
+  }
+  .swipe-action:active { transform: scale(0.94); }
+  .swipe-action.reject {
+    background: #ffffff; color: #475569;
+    border-color: #e5ecf3;
+    box-shadow: 0 8px 18px rgba(15,23,42,0.08);
+  }
+  .swipe-action.reject:hover { color: #0f172a; border-color: #cbd5e1; }
+  .swipe-action.accept {
+    background: #10b981; color: #ffffff;
+    box-shadow: 0 12px 24px rgba(16,185,129,0.35);
+  }
+  .swipe-action.accept:hover { background: #059669; }
+
+  /* Match modal */
+  .modal-overlay {
+    position: absolute; inset: 0;
+    background: rgba(6, 18, 31, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 30;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.is-open { display: flex; }
+  .modal-card {
+    background: #ffffff;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 360px;
+    padding: 32px 28px 24px;
+    text-align: center;
+    box-shadow: 0 30px 60px rgba(6,18,31,0.35);
+    animation: modalIn 280ms cubic-bezier(.22,.61,.36,1);
+  }
+  @keyframes modalIn {
+    from { transform: translateY(12px) scale(0.96); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+  }
+
+  /* Toast */
+  .toast {
+    position: absolute;
+    left: 50%; bottom: 92px;
+    transform: translateX(-50%) translateY(8px);
+    background: #0a1d33; color: #ffffff;
+    padding: 10px 16px; border-radius: 999px;
+    font-size: 13px; font-weight: 500;
+    opacity: 0; pointer-events: none;
+    transition: opacity 200ms ease, transform 200ms ease;
+    z-index: 25;
+    box-shadow: 0 12px 28px rgba(6,18,31,0.3);
+  }
+  .toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Avatars */
+  .avatar {
+    width: 64px; height: 64px; border-radius: 999px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; color: #ffffff;
+    background: linear-gradient(135deg, #1e3a5f, #06121f);
+    box-shadow: 0 6px 14px rgba(10,29,51,0.25);
+  }
+  .avatar.lg { width: 88px; height: 88px; font-size: 28px; }
+  .avatar.sm { width: 44px; height: 44px; font-size: 14px; }
+  .avatar.xs { width: 36px; height: 36px; font-size: 12px; }
+
+  /* Chips */
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    background: #f1f5fa; color: #1e3a5f;
+    font-size: 11px; font-weight: 600;
+    border: 1px solid #e1e9f3;
+  }
+  .chip.accent { background: #ecfdf5; color: #047857; border-color: #d1fae5; }
+  .chip.warn { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+
+  /* Splash */
+  .splash-bg {
+    background:
+      radial-gradient(circle at 20% 0%, rgba(16,185,129,0.18), transparent 55%),
+      radial-gradient(circle at 90% 90%, rgba(30,58,95,0.35), transparent 60%),
+      linear-gradient(180deg, #06121f 0%, #0a1d33 60%, #142a48 100%);
+  }
+  .splash-grain {
+    background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+
+  .role-card {
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+  }
+  .role-card:hover { transform: translateY(-2px); border-color: rgba(16,185,129,0.6); }
+
+  /* Utility */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .divider-soft { border-top: 1px solid #e5ecf3; }
+
+  .pill-tab {
+    padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    color: #475569; border: 1px solid transparent; cursor: pointer; background: transparent;
+  }
+  .pill-tab.active { background: #0a1d33; color: #ffffff; }
+
+  .check-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; font-size: 13px; color: #1e293b;
+  }
+  .check-row .check-icon {
+    width: 22px; height: 22px; border-radius: 999px;
+    background: #ecfdf5; color: #059669;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .check-row.pending .check-icon { background: #fff7ed; color: #c2410c; }
+
+  .metric-card {
+    background: #ffffff; border: 1px solid #e5ecf3; border-radius: 18px; padding: 16px;
+  }
+
+  .gradient-cta {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 12px 30px rgba(16,185,129,0.32);
+  }
+  .gradient-cta:hover { filter: brightness(1.05); }
+
+  .ghost-btn {
+    background: #ffffff; color: #0a1d33;
+    border: 1px solid #e1e9f3;
+  }
+  .ghost-btn:hover { border-color: #94aecc; }
+
+  /* Calce indicator */
+  .calce-bar {
+    height: 6px; border-radius: 999px; background: #e5ecf3; overflow: hidden;
+  }
+  .calce-bar > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, #1e3a5f, #10b981);
+  }
+
+  /* Hide scroll bars on stack */
+  .stack { overflow: visible; }
+
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #1e3a5f;
+    background: #f1f5fa; border: 1px solid #e1e9f3;
+    cursor: pointer; transition: background 150ms ease;
+  }
+  .icon-btn:hover { background: #e1e9f3; }
+
+  .badge-soft {
+    background: #f1f5fa; color: #1e3a5f; font-weight: 600; font-size: 11px;
+    padding: 4px 10px; border-radius: 999px; letter-spacing: 0.02em;
+  }
+
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: #64748b;
+  }
+
+  /* Empty state */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    padding: 40px 24px; text-align: center; color: #64748b;
+  }
+
+  .skeleton-glow {
+    background: linear-gradient(135deg, #1e3a5f 0%, #0a1d33 60%, #06121f 100%);
+  }
+
+  .ring-soft {
+    box-shadow: 0 0 0 6px rgba(16,185,129,0.18);
+  }
+
+  /* Allow swipe card touch */
+  .swipe-card { touch-action: pan-y; }
+
+  /* Hearts rain on match */
+  .hearts-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 40;
+  }
+  .heart-particle {
+    position: absolute;
+    bottom: -42px;
+    line-height: 1;
+    opacity: 0;
+    animation: heartFloat ease-out forwards;
+    filter: drop-shadow(0 6px 14px rgba(15, 23, 42, 0.18));
+    will-change: transform, opacity;
+    user-select: none;
+  }
+  @keyframes heartFloat {
+    0%   { transform: translate(0, 0) scale(0.55) rotate(0deg); opacity: 0; }
+    12%  { opacity: var(--max-op, 0.95); }
+    65%  { opacity: var(--max-op, 0.95); }
+    100% { transform: translate(var(--drift, 0px), -960px) scale(1.05) rotate(var(--r, 0deg)); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="device-wrap">
+  <div class="device" id="device">
+
+    <!-- ============== SPLASH ============== -->
+    <section id="screen-splash" class="screen active">
+      <div class="splash-bg flex-1 flex flex-col">
+        <div class="splash-grain absolute inset-0 opacity-60 pointer-events-none"></div>
+        <div class="relative flex-1 flex flex-col px-7 pt-8 pb-8 text-white">
+          <div class="flex items-center justify-center mt-2">
+            <div class="bg-white rounded-3xl px-6 py-5 shadow-float">
+              <img src="logo.png" alt="Vinder — Match con tu Casa" class="w-44 h-auto block select-none" draggable="false" />
+            </div>
+          </div>
+
+          <div class="mt-8 text-center">
+            <p class="text-accent-300 text-xs font-semibold tracking-[0.18em] uppercase">Acceso a la vivienda</p>
+            <p class="mt-3 text-white/80 text-[13px] leading-relaxed max-w-[320px] mx-auto">
+              Conectamos jóvenes profesionales bonaerenses con instrumentos de financiamiento alternativos al crédito hipotecario tradicional.
+            </p>
+          </div>
+
+          <div class="mt-auto space-y-3">
+            <p class="section-title text-white/50">Elegí cómo entrar</p>
+
+            <button class="role-card w-full text-left rounded-2xl border border-white/10 bg-white/5 p-4 flex items-center gap-4" onclick="setRole('joven')">
+              <div class="w-12 h-12 rounded-xl bg-accent-500/20 border border-accent-500/30 flex items-center justify-center">
+                <i data-lucide="user-round" class="w-5 h-5 text-accent-300"></i>
+              </div>
+              <div class="flex-1">
+                <div class="text-sm font-semibold text-white">Soy joven que busca casa</div>
+                <div class="text-xs text-white/60 mt-0.5">Encontrá un instrumento que se adapte a tu proyecto de vida.</div>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-white/40"></i>
+            </button>
+
+            <button class="role-card w-full text-left rounded-2xl border border-white/10 bg-white/5 p-4 flex items-center gap-4" onclick="setRole('inversor')">
+              <div class="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center">
+                <i data-lucide="building-2" class="w-5 h-5 text-white"></i>
+              </div>
+              <div class="flex-1">
+                <div class="text-sm font-semibold text-white">Soy inversor</div>
+                <div class="text-xs text-white/60 mt-0.5">Colocá capital en proyectos calificados con propósito territorial.</div>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-white/40"></i>
+            </button>
+
+            <p class="text-[11px] text-white/40 text-center pt-2">Prototipo demostrativo · datos simulados</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== JOVEN — PERFIL ============== -->
+    <section id="screen-joven-perfil" class="screen">
+      <header class="px-5 pt-6 pb-4 flex items-center justify-between">
+        <div>
+          <p class="section-title">Mi perfil</p>
+          <h2 class="text-xl font-bold text-navy-900 mt-1">Tu Vinder Score</h2>
+        </div>
+        <button class="icon-btn" onclick="switchRole()" title="Cambiar de rol">
+          <i data-lucide="repeat" class="w-4 h-4"></i>
+        </button>
+      </header>
+
+      <div class="px-5 pb-6">
+        <div class="rounded-2xl bg-navy-900 text-white p-5 shadow-card relative overflow-hidden">
+          <div class="absolute -top-12 -right-10 w-44 h-44 rounded-full bg-accent-500/20 blur-2xl"></div>
+          <div class="relative flex items-center gap-4">
+            <div class="avatar lg ring-soft">LF</div>
+            <div class="flex-1">
+              <div class="text-lg font-bold">Lucía Fernández</div>
+              <div class="text-xs text-white/70 mt-0.5">27 años · Médica generalista</div>
+              <div class="flex items-center gap-1.5 mt-2 text-xs text-white/80">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-accent-300"></i>
+                <span>La Plata → América (Rivadavia, PBA)</span>
+              </div>
+            </div>
+          </div>
+          <p class="relative text-[13px] text-white/75 leading-relaxed mt-4">
+            Médica recién recibida en UNLP, vuelve a su ciudad natal América (partido de Rivadavia) para integrarse al hospital municipal Dr. Saturnino Unzué.
+          </p>
+        </div>
+
+        <div class="mt-5 rounded-2xl bg-white border border-navy-100 shadow-card p-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="section-title">Vinder Score</p>
+              <div class="flex items-baseline gap-1 mt-1">
+                <span class="text-4xl font-extrabold text-navy-900">7.8</span>
+                <span class="text-sm font-medium text-slate-500">/10</span>
+              </div>
+            </div>
+            <span class="chip accent"><i data-lucide="trending-up" class="w-3 h-3"></i> Apto para financiar</span>
+          </div>
+
+          <div id="joven-score-bars" class="mt-5 space-y-3.5"></div>
+        </div>
+
+        <div class="mt-5 grid grid-cols-2 gap-3">
+          <div class="metric-card">
+            <p class="text-[11px] text-slate-500 font-medium">Monto solicitado</p>
+            <p class="text-base font-bold text-navy-900 mt-1">$80M ARS</p>
+          </div>
+          <div class="metric-card">
+            <p class="text-[11px] text-slate-500 font-medium">Vivienda objetivo</p>
+            <p class="text-base font-bold text-navy-900 mt-1">60 m²</p>
+          </div>
+        </div>
+
+        <button class="mt-6 w-full gradient-cta text-white font-semibold py-3.5 rounded-2xl flex items-center justify-center gap-2" onclick="showScreen('screen-joven-feed')">
+          Ver oportunidades <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="mt-auto"></div>
+      <nav id="nav-joven" class="bottom-nav"></nav>
+    </section>
+
+    <!-- ============== JOVEN — FEED ============== -->
+    <section id="screen-joven-feed" class="screen">
+      <header class="px-5 pt-6 pb-3 flex items-center justify-between">
+        <div>
+          <p class="section-title">Instrumentos disponibles</p>
+          <h2 class="text-xl font-bold text-navy-900 mt-1">Encontrá tu calce</h2>
+        </div>
+        <div class="text-right">
+          <p class="text-[11px] text-slate-500">Restantes</p>
+          <p id="joven-counter" class="text-base font-bold text-navy-900">6</p>
+        </div>
+      </header>
+
+      <div class="px-5 flex-1 flex flex-col">
+        <div class="flex-1 relative my-4">
+          <div id="joven-stack" class="stack"></div>
+          <div id="joven-empty" class="empty-state hidden absolute inset-0 justify-center">
+            <i data-lucide="check-circle-2" class="w-10 h-10 text-accent-500"></i>
+            <p class="text-sm font-semibold text-navy-900">¡Listo, los viste todos!</p>
+            <p class="text-xs">Revisá tus matches o volvé al feed.</p>
+            <button class="mt-2 px-4 py-2 rounded-xl bg-navy-900 text-white text-xs font-semibold" onclick="resetJovenFeed()">Reiniciar feed</button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-6 pb-4">
+          <button class="swipe-action reject" onclick="swipeJoven('reject')" aria-label="Descartar">
+            <i data-lucide="x" class="w-6 h-6"></i>
+          </button>
+          <button class="swipe-action accept" onclick="swipeJoven('accept')" aria-label="Aceptar">
+            <i data-lucide="heart" class="w-6 h-6"></i>
+          </button>
+        </div>
+      </div>
+
+      <nav id="nav-joven-feed" class="bottom-nav"></nav>
+    </section>
+
+    <!-- ============== JOVEN — MATCHES ============== -->
+    <section id="screen-joven-matches" class="screen">
+      <header class="px-5 pt-6 pb-4 flex items-center justify-between">
+        <div>
+          <p class="section-title">Tus matches</p>
+          <h2 class="text-xl font-bold text-navy-900 mt-1">Vínculos activos</h2>
+        </div>
+        <span id="joven-matches-count" class="badge-soft">0</span>
+      </header>
+      <div id="joven-matches-list" class="px-5 pb-6 space-y-3"></div>
+      <div id="joven-matches-empty" class="empty-state hidden">
+        <i data-lucide="heart-handshake" class="w-10 h-10 text-navy-300"></i>
+        <p class="text-sm font-semibold text-navy-900">Todavía no tenés matches</p>
+        <p class="text-xs">Aceptá un instrumento desde el feed para arrancar.</p>
+      </div>
+      <nav id="nav-joven-matches" class="bottom-nav mt-auto"></nav>
+    </section>
+
+    <!-- ============== JOVEN — DETALLE MATCH ============== -->
+    <section id="screen-joven-detail" class="screen">
+      <header class="px-5 pt-6 pb-3 flex items-center gap-3">
+        <button class="icon-btn" onclick="showScreen('screen-joven-matches')" aria-label="Volver">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        </button>
+        <div>
+          <p class="section-title">Detalle del match</p>
+          <h2 id="joven-detail-title" class="text-lg font-bold text-navy-900 mt-0.5">—</h2>
+        </div>
+      </header>
+      <div id="joven-detail-body" class="px-5 pb-6 space-y-4"></div>
+      <nav id="nav-joven-detail" class="bottom-nav mt-auto"></nav>
+    </section>
+
+    <!-- ============== INVERSOR — PERFIL ============== -->
+    <section id="screen-inv-perfil" class="screen">
+      <header class="px-5 pt-6 pb-4 flex items-center justify-between">
+        <div>
+          <p class="section-title">Mi perfil</p>
+          <h2 class="text-xl font-bold text-navy-900 mt-1">Mutual Bonaerense</h2>
+        </div>
+        <button class="icon-btn" onclick="switchRole()" title="Cambiar de rol">
+          <i data-lucide="repeat" class="w-4 h-4"></i>
+        </button>
+      </header>
+
+      <div class="px-5 pb-6">
+        <div class="rounded-2xl bg-navy-900 text-white p-5 shadow-card relative overflow-hidden">
+          <div class="absolute -top-16 -right-12 w-48 h-48 rounded-full bg-accent-500/15 blur-2xl"></div>
+          <div class="relative flex items-center gap-4">
+            <div class="w-16 h-16 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center">
+              <i data-lucide="landmark" class="w-7 h-7 text-accent-300"></i>
+            </div>
+            <div class="flex-1">
+              <div class="text-base font-bold">Mutual Bonaerense del Hogar</div>
+              <div class="text-xs text-white/70 mt-0.5">Mutual de vivienda · INAES</div>
+              <div class="flex items-center gap-1.5 mt-2 text-xs text-white/80">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-accent-300"></i>
+                <span>Custodia: Banco Provincia</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative mt-5 grid grid-cols-2 gap-3">
+            <div class="rounded-xl bg-white/8 p-3 border border-white/10">
+              <p class="text-[10px] uppercase tracking-wider text-white/60">Capital disponible</p>
+              <p class="text-lg font-bold mt-1">$250M ARS</p>
+            </div>
+            <div class="rounded-xl bg-white/8 p-3 border border-white/10">
+              <p class="text-[10px] uppercase tracking-wider text-white/60">Tasa objetivo</p>
+              <p class="text-lg font-bold mt-1">≥ 4% UVA</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5">
+          <p class="section-title">Sectores objetivo</p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <span class="chip"><i data-lucide="home" class="w-3 h-3"></i> Vivienda única</span>
+            <span class="chip"><i data-lucide="graduation-cap" class="w-3 h-3"></i> Profesionales jóvenes</span>
+            <span class="chip"><i data-lucide="map" class="w-3 h-3"></i> Provincia de Buenos Aires</span>
+            <span class="chip"><i data-lucide="leaf" class="w-3 h-3"></i> Arraigo territorial</span>
+          </div>
+        </div>
+
+        <button class="mt-6 w-full gradient-cta text-white font-semibold py-3.5 rounded-2xl flex items-center justify-center gap-2" onclick="showScreen('screen-inv-dashboard')">
+          Ver mi dashboard <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <nav id="nav-inv" class="bottom-nav mt-auto"></nav>
+    </section>
+
+    <!-- ============== INVERSOR — DASHBOARD ============== -->
+    <section id="screen-inv-dashboard" class="screen">
+      <header class="px-5 pt-6 pb-4 flex items-center justify-between">
+        <div>
+          <p class="section-title">Dashboard</p>
+          <h2 class="text-xl font-bold text-navy-900 mt-1">Cartera en curso</h2>
+        </div>
+        <span class="chip accent"><i data-lucide="activity" class="w-3 h-3"></i> En tiempo real</span>
+      </header>
+
+      <div class="px-5 pb-6 space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="metric-card">
+            <p class="text-[11px] text-slate-500 font-medium">Capital colocado</p>
+            <p class="text-xl font-extrabold text-navy-900 mt-1">$187M</p>
+            <p class="text-[10px] text-accent-600 mt-1 font-semibold">+12% vs trimestre</p>
+          </div>
+          <div class="metric-card">
+            <p class="text-[11px] text-slate-500 font-medium">Proyectos activos</p>
+            <p class="text-xl font-extrabold text-navy-900 mt-1">14</p>
+            <p class="text-[10px] text-slate-500 mt-1">3 en evaluación</p>
+          </div>
+          <div class="metric-card">
+            <p class="text-[11px] text-slate-500 font-medium">Retorno promedio</p>
+            <p class="text-xl font-extrabold text-navy-900 mt-1">4.3% UVA</p>
+            <p class="text-[10px] text-slate-500 mt-1">Plazo medio 19 años</p>
+          </div>
+          <div class="metric-card">
+            <p class="text-[11px] text-slate-500 font-medium">Mora simulada</p>
+            <p class="text-xl font-extrabold text-navy-900 mt-1">1.2%</p>
+            <p class="text-[10px] text-accent-600 mt-1 font-semibold">Por debajo del mercado</p>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-navy-50 border border-navy-100 p-4">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-white border border-navy-100 flex items-center justify-center text-navy-700">
+              <i data-lucide="lightbulb" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-navy-900">3 proyectos nuevos coinciden con tu perfil</p>
+              <p class="text-xs text-slate-600 mt-1">Profesionales con arraigo territorial alto en América (partido de Rivadavia, PBA).</p>
+            </div>
+          </div>
+          <button class="mt-3 w-full gradient-cta text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2" onclick="showScreen('screen-inv-feed')">
+            Explorar proyectos <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div>
+          <p class="section-title">Distribución por instrumento</p>
+          <div class="mt-3 space-y-2.5">
+            <div>
+              <div class="flex justify-between text-xs mb-1"><span class="text-slate-600">Tokens financieros</span><span class="font-semibold text-navy-900">42%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width: 42%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1"><span class="text-slate-600">Cooperativas</span><span class="font-semibold text-navy-900">38%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width: 38%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1"><span class="text-slate-600">Mutuales</span><span class="font-semibold text-navy-900">20%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width: 20%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <nav id="nav-inv-dash" class="bottom-nav mt-auto"></nav>
+    </section>
+
+    <!-- ============== INVERSOR — FEED ============== -->
+    <section id="screen-inv-feed" class="screen">
+      <header class="px-5 pt-6 pb-3 flex items-center justify-between">
+        <div>
+          <p class="section-title">Proyectos calificados</p>
+          <h2 class="text-xl font-bold text-navy-900 mt-1">Evaluá perfiles</h2>
+        </div>
+        <div class="text-right">
+          <p class="text-[11px] text-slate-500">Restantes</p>
+          <p id="inv-counter" class="text-base font-bold text-navy-900">6</p>
+        </div>
+      </header>
+
+      <div class="px-5 flex-1 flex flex-col">
+        <div class="flex-1 relative my-4">
+          <div id="inv-stack" class="stack"></div>
+          <div id="inv-empty" class="empty-state hidden absolute inset-0 justify-center">
+            <i data-lucide="check-circle-2" class="w-10 h-10 text-accent-500"></i>
+            <p class="text-sm font-semibold text-navy-900">Revisaste todos los perfiles</p>
+            <p class="text-xs">Volvé a tus matches para gestionar el contacto.</p>
+            <button class="mt-2 px-4 py-2 rounded-xl bg-navy-900 text-white text-xs font-semibold" onclick="resetInvFeed()">Reiniciar feed</button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-6 pb-4">
+          <button class="swipe-action reject" onclick="swipeInversor('reject')" aria-label="Descartar">
+            <i data-lucide="x" class="w-6 h-6"></i>
+          </button>
+          <button class="swipe-action accept" onclick="swipeInversor('accept')" aria-label="Aceptar">
+            <i data-lucide="heart" class="w-6 h-6"></i>
+          </button>
+        </div>
+      </div>
+
+      <nav id="nav-inv-feed" class="bottom-nav"></nav>
+    </section>
+
+    <!-- ============== INVERSOR — MATCHES ============== -->
+    <section id="screen-inv-matches" class="screen">
+      <header class="px-5 pt-6 pb-4 flex items-center justify-between">
+        <div>
+          <p class="section-title">Matches de cartera</p>
+          <h2 class="text-xl font-bold text-navy-900 mt-1">Proyectos vinculados</h2>
+        </div>
+        <span id="inv-matches-count" class="badge-soft">0</span>
+      </header>
+      <div id="inv-matches-list" class="px-5 pb-6 space-y-3"></div>
+      <div id="inv-matches-empty" class="empty-state hidden">
+        <i data-lucide="heart-handshake" class="w-10 h-10 text-navy-300"></i>
+        <p class="text-sm font-semibold text-navy-900">Aún sin proyectos vinculados</p>
+        <p class="text-xs">Aceptá un perfil del feed para abrir el match.</p>
+      </div>
+      <nav id="nav-inv-matches" class="bottom-nav mt-auto"></nav>
+    </section>
+
+    <!-- ============== INVERSOR — DETALLE MATCH ============== -->
+    <section id="screen-inv-detail" class="screen">
+      <header class="px-5 pt-6 pb-3 flex items-center gap-3">
+        <button class="icon-btn" onclick="showScreen('screen-inv-matches')" aria-label="Volver">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        </button>
+        <div>
+          <p class="section-title">Due diligence</p>
+          <h2 id="inv-detail-title" class="text-lg font-bold text-navy-900 mt-0.5">—</h2>
+        </div>
+      </header>
+      <div id="inv-detail-body" class="px-5 pb-6 space-y-4"></div>
+      <nav id="nav-inv-detail" class="bottom-nav mt-auto"></nav>
+    </section>
+
+    <!-- ============== HEARTS LAYER ============== -->
+    <div id="hearts-layer" class="hearts-layer" aria-hidden="true"></div>
+
+    <!-- ============== MATCH MODAL ============== -->
+    <div id="match-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="w-16 h-16 mx-auto rounded-full bg-accent-50 border border-accent-200 flex items-center justify-center">
+          <i data-lucide="check" class="w-8 h-8 text-accent-600"></i>
+        </div>
+        <p class="text-[11px] tracking-[0.18em] uppercase text-accent-600 font-bold mt-4">Match confirmado</p>
+        <h3 id="match-modal-title" class="text-xl font-extrabold text-navy-900 mt-2">¡Tenés un match!</h3>
+        <p id="match-modal-subtitle" class="text-sm text-slate-600 mt-2 leading-relaxed">Ambos lados aceptaron el vínculo. Ya podés iniciar el contacto.</p>
+        <div class="mt-5 flex flex-col gap-2">
+          <button id="match-modal-cta" class="w-full bg-navy-900 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2">
+            Ver match <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+          <button class="w-full ghost-btn font-semibold py-3 rounded-xl" onclick="closeMatchModal()">Seguir explorando</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============== TOAST ============== -->
+    <div id="toast" class="toast">Pasaste. Buscamos otro calce.</div>
+
+  </div>
+</div>
+
+<script>
+  // -------- DATA --------
+  const data = {
+    joven: {
+      name: 'Lucía Fernández',
+      initials: 'LF',
+      age: 27,
+      profession: 'Médica generalista',
+      education: 'UNLP',
+      origin: 'La Plata (UNLP)',
+      destination: 'América · Rivadavia, PBA',
+      monto: 80_000_000,
+      plazo: 20,
+      superficie: 60,
+      score: 7.8,
+      subscores: [
+        { key: 'crediticio', label: 'Crediticio', detail: 'Historial formal', value: 6.5 },
+        { key: 'arraigo', label: 'Arraigo territorial', detail: 'Vínculo con América (Rivadavia)', value: 9.2 },
+        { key: 'proposito', label: 'Propósito profesional', detail: 'Capacidad de generar ingresos', value: 8.4 },
+        { key: 'estabilidad', label: 'Estabilidad', detail: 'Situación familiar y laboral', value: 7.1 }
+      ],
+      narrative: 'Médica recién recibida en UNLP, vuelve a su ciudad natal América (partido de Rivadavia) para integrarse al hospital municipal Dr. Saturnino Unzué.'
+    },
+
+    instrumentos: [
+      {
+        id: 'vnd-hip',
+        tipo: 'Token',
+        nombre: 'Token VND-Hipotecario',
+        sub: 'Stablecoin atada a UVA',
+        tasa: '4% UVA',
+        tasaNum: 4,
+        plazo: '20 años',
+        plazoNum: 20,
+        monto: 'Hasta $120M',
+        requisitos: 'Score ≥ 7.0 · Edad 25–35',
+        custodia: 'Banco Provincia',
+        regulador: 'BCRA · CNV',
+        icon: 'coins',
+        accent: 'accent',
+        matchOnAccept: true
+      },
+      {
+        id: 'raiz',
+        tipo: 'Token',
+        nombre: 'Token Raíz',
+        sub: 'Instrumento DeFi tokenizado',
+        tasa: '6% UVA',
+        tasaNum: 6,
+        plazo: '15 años',
+        plazoNum: 15,
+        monto: 'Hasta $90M',
+        requisitos: 'KYC PBA · Score ≥ 6.5',
+        custodia: 'Multifirma descentralizada',
+        regulador: 'CNV (sandbox)',
+        icon: 'circle-dot',
+        accent: 'navy',
+        matchOnAccept: false
+      },
+      {
+        id: 'hornero',
+        tipo: 'Cooperativa',
+        nombre: 'Cooperativa "El Hornero" Ltda.',
+        sub: 'Quilmes, Bonaerense',
+        tasa: '3.5% UVA',
+        tasaNum: 3.5,
+        plazo: '25 años',
+        plazoNum: 25,
+        monto: 'Hasta $100M',
+        requisitos: 'Aporte previo ≥ 6 meses',
+        custodia: 'Banco Credicoop',
+        regulador: 'INAES',
+        icon: 'users',
+        accent: 'accent',
+        matchOnAccept: true
+      },
+      {
+        id: 'tierra-propia',
+        tipo: 'Cooperativa',
+        nombre: 'Cooperativa "Tierra Propia" Ltda.',
+        sub: 'Mar del Plata',
+        tasa: '4.2% UVA',
+        tasaNum: 4.2,
+        plazo: '20 años',
+        plazoNum: 20,
+        monto: 'Hasta $85M',
+        requisitos: 'Residencia PBA · ingresos formales',
+        custodia: 'Banco Provincia',
+        regulador: 'INAES',
+        icon: 'house',
+        accent: 'navy',
+        matchOnAccept: false
+      },
+      {
+        id: 'raices-sur',
+        tipo: 'Mutual',
+        nombre: 'Mutual "Raíces del Sur"',
+        sub: 'La Plata',
+        tasa: '3.8% UVA',
+        tasaNum: 3.8,
+        plazo: '22 años',
+        plazoNum: 22,
+        monto: 'Hasta $95M',
+        requisitos: 'Asociado activo ≥ 12 meses',
+        custodia: 'Banco Provincia',
+        regulador: 'INAES',
+        icon: 'sprout',
+        accent: 'accent',
+        matchOnAccept: true
+      },
+      {
+        id: 'habitar',
+        tipo: 'Cooperativa',
+        nombre: 'Cooperativa Habitar Bonaerense',
+        sub: 'Zona norte PBA',
+        tasa: '4.5% UVA',
+        tasaNum: 4.5,
+        plazo: '18 años',
+        plazoNum: 18,
+        monto: 'Hasta $110M',
+        requisitos: 'Score ≥ 6.0 · profesional con título',
+        custodia: 'Banco Nación',
+        regulador: 'INAES',
+        icon: 'building',
+        accent: 'navy',
+        matchOnAccept: false
+      }
+    ],
+
+    perfilesJoven: [
+      {
+        id: 'lucia',
+        initials: 'LF',
+        name: 'Lucía Fernández',
+        age: 27,
+        profession: 'Médica generalista',
+        education: 'UNLP',
+        ciudad: 'América (Rivadavia)',
+        monto: 80_000_000,
+        plazo: 20,
+        score: 7.8,
+        subscores: [6.5, 9.2, 8.4, 7.1],
+        narrative: 'Vuelve a América para integrarse al hospital municipal Dr. Saturnino Unzué.',
+        calce: 92,
+        matchOnAccept: true
+      },
+      {
+        id: 'mateo',
+        initials: 'MR',
+        name: 'Mateo Rivero',
+        age: 29,
+        profession: 'Ing. Agrónomo',
+        education: 'UNS',
+        ciudad: 'América (Rivadavia)',
+        monto: 95_000_000,
+        plazo: 22,
+        score: 8.1,
+        subscores: [7.8, 8.5, 8.7, 7.4],
+        narrative: 'Asesora cooperativas agrícolas del partido de Rivadavia, busca primera vivienda.',
+        calce: 88,
+        matchOnAccept: true
+      },
+      {
+        id: 'sofia',
+        initials: 'SP',
+        name: 'Sofía Pellegrini',
+        age: 26,
+        profession: 'Docente secundaria',
+        education: 'UNLPam',
+        ciudad: 'América (Rivadavia)',
+        monto: 65_000_000,
+        plazo: 25,
+        score: 7.2,
+        subscores: [6.0, 8.9, 7.5, 6.4],
+        narrative: 'Docente titularizada en la EEM N°2 de América, busca vivienda cercana al establecimiento.',
+        calce: 76,
+        matchOnAccept: false
+      },
+      {
+        id: 'tomas',
+        initials: 'TG',
+        name: 'Tomás Garrido',
+        age: 31,
+        profession: 'Dev full-stack',
+        education: 'UTN-FRBB',
+        ciudad: 'América (Rivadavia)',
+        monto: 110_000_000,
+        plazo: 18,
+        score: 8.5,
+        subscores: [8.7, 7.4, 9.1, 8.6],
+        narrative: 'Trabaja remoto desde América para empresa internacional, ingresos en USD declarados.',
+        calce: 91,
+        matchOnAccept: true
+      },
+      {
+        id: 'camila',
+        initials: 'CO',
+        name: 'Camila Ortiz',
+        age: 28,
+        profession: 'Veterinaria',
+        education: 'UNICEN',
+        ciudad: 'América (Rivadavia)',
+        monto: 72_000_000,
+        plazo: 23,
+        score: 7.6,
+        subscores: [7.0, 8.6, 7.9, 6.8],
+        narrative: 'Consultorio rural en América, vínculo fuerte con productores ganaderos del partido de Rivadavia.',
+        calce: 79,
+        matchOnAccept: false
+      },
+      {
+        id: 'joaquin',
+        initials: 'JM',
+        name: 'Joaquín Méndez',
+        age: 30,
+        profession: 'Contador público',
+        education: 'UNS',
+        ciudad: 'América (Rivadavia)',
+        monto: 88_000_000,
+        plazo: 20,
+        score: 7.9,
+        subscores: [7.6, 7.8, 8.2, 8.0],
+        narrative: 'Estudio contable en el casco urbano de América, casado, planea expandir su familia.',
+        calce: 85,
+        matchOnAccept: true
+      }
+    ]
+  };
+
+  // -------- STATE --------
+  const STORAGE_KEY = 'vinder_role';
+  const state = {
+    role: localStorage.getItem(STORAGE_KEY) || null,
+    jovenIdx: 0,
+    invIdx: 0,
+    jovenSwipes: {},
+    invSwipes: {},
+    jovenMatches: ['hornero'],
+    invMatches: ['mateo'],
+    isAnimating: false
+  };
+
+  // -------- HELPERS --------
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+  function fmtARS(n) {
+    return '$' + n.toLocaleString('es-AR');
+  }
+  function fmtCompact(n) {
+    if (n >= 1_000_000) return '$' + (n / 1_000_000).toFixed(0) + 'M';
+    if (n >= 1_000) return '$' + (n / 1_000).toFixed(0) + 'k';
+    return '$' + n;
+  }
+  function cuotaMensual(monto, tasaAnualPct, plazoAnos) {
+    const i = (tasaAnualPct / 100) / 12;
+    const n = plazoAnos * 12;
+    if (i === 0) return monto / n;
+    return monto * i / (1 - Math.pow(1 + i, -n));
+  }
+
+  function refreshIcons() {
+    if (window.lucide && lucide.createIcons) lucide.createIcons();
+  }
+
+  // -------- ROUTING --------
+  function showScreen(id) {
+    $$('.screen').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById(id);
+    if (target) target.classList.add('active');
+    target?.scrollTo?.({ top: 0 });
+
+    // Render dynamic content per screen
+    if (id === 'screen-joven-perfil') renderJovenScoreBars();
+    if (id === 'screen-joven-feed') renderJovenStack();
+    if (id === 'screen-joven-matches') renderJovenMatches();
+    if (id === 'screen-inv-feed') renderInvStack();
+    if (id === 'screen-inv-matches') renderInvMatches();
+
+    // Update bottom nav active states
+    updateNavActive(id);
+    refreshIcons();
+  }
+
+  function setRole(role) {
+    state.role = role;
+    localStorage.setItem(STORAGE_KEY, role);
+    renderBottomNavs();
+    if (role === 'joven') showScreen('screen-joven-perfil');
+    else showScreen('screen-inv-perfil');
+  }
+
+  function switchRole() {
+    const next = state.role === 'joven' ? 'inversor' : 'joven';
+    setRole(next);
+  }
+
+  function backToSplash() {
+    state.role = null;
+    localStorage.removeItem(STORAGE_KEY);
+    showScreen('screen-splash');
+  }
+
+  // -------- BOTTOM NAVS --------
+  const navConfigJoven = [
+    { id: 'screen-joven-perfil', icon: 'user-round', label: 'Perfil' },
+    { id: 'screen-joven-feed', icon: 'layers', label: 'Feed' },
+    { id: 'screen-joven-matches', icon: 'heart-handshake', label: 'Matches' },
+    { id: '__switch__', icon: 'repeat', label: 'Cambiar' }
+  ];
+  const navConfigInv = [
+    { id: 'screen-inv-perfil', icon: 'building-2', label: 'Perfil' },
+    { id: 'screen-inv-dashboard', icon: 'layout-dashboard', label: 'Dashboard' },
+    { id: 'screen-inv-feed', icon: 'layers', label: 'Feed' },
+    { id: 'screen-inv-matches', icon: 'heart-handshake', label: 'Matches' },
+    { id: '__switch__', icon: 'repeat', label: 'Cambiar' }
+  ];
+
+  function renderBottomNavs() {
+    const jovenNavTargets = ['nav-joven', 'nav-joven-feed', 'nav-joven-matches', 'nav-joven-detail'];
+    const invNavTargets = ['nav-inv', 'nav-inv-dash', 'nav-inv-feed', 'nav-inv-matches', 'nav-inv-detail'];
+
+    jovenNavTargets.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = navHTML(navConfigJoven);
+    });
+    invNavTargets.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = navHTML(navConfigInv);
+    });
+    refreshIcons();
+  }
+
+  function navHTML(items) {
+    return items.map(item => `
+      <button data-target="${item.id}" onclick="${item.id === '__switch__' ? 'switchRole()' : `showScreen('${item.id}')`}">
+        <i data-lucide="${item.icon}" class="w-5 h-5"></i>
+        <span>${item.label}</span>
+        <span class="dot"></span>
+      </button>
+    `).join('');
+  }
+
+  function updateNavActive(currentId) {
+    $$('.bottom-nav button').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.target === currentId);
+    });
+  }
+
+  // -------- JOVEN SCORE BARS --------
+  function renderJovenScoreBars() {
+    const wrap = $('#joven-score-bars');
+    if (!wrap) return;
+    wrap.innerHTML = data.joven.subscores.map(s => `
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <div>
+            <span class="text-sm font-semibold text-navy-900">${s.label}</span>
+            <span class="text-[11px] text-slate-500 block">${s.detail}</span>
+          </div>
+          <span class="text-sm font-bold text-navy-900">${s.value.toFixed(1)}</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width: ${s.value * 10}%"></div></div>
+      </div>
+    `).join('');
+  }
+
+  // -------- JOVEN FEED (instrumentos) --------
+  function renderJovenStack() {
+    const stack = $('#joven-stack');
+    const empty = $('#joven-empty');
+    if (!stack) return;
+
+    const remaining = data.instrumentos.length - state.jovenIdx;
+    $('#joven-counter').textContent = remaining;
+
+    if (remaining <= 0) {
+      stack.innerHTML = '';
+      empty.classList.remove('hidden');
+      refreshIcons();
+      return;
+    }
+    empty.classList.add('hidden');
+
+    const visible = data.instrumentos.slice(state.jovenIdx, state.jovenIdx + 3);
+    stack.innerHTML = visible.map((inst, idx) => instrumentCardHTML(inst, idx)).reverse().join('');
+    refreshIcons();
+  }
+
+  function instrumentCardHTML(inst, stackIdx) {
+    const isToken = inst.tipo === 'Token';
+    const accentClass = inst.accent === 'accent' ? 'bg-accent-50 text-accent-700 border-accent-100' : 'bg-navy-50 text-navy-700 border-navy-100';
+    return `
+      <article class="swipe-card" data-stack="${stackIdx}" data-id="${inst.id}">
+        <div class="px-5 pt-5 pb-4 flex items-start gap-3 border-b border-navy-100">
+          <div class="w-12 h-12 rounded-xl ${accentClass} border flex items-center justify-center">
+            <i data-lucide="${inst.icon}" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="chip ${isToken ? '' : 'accent'}">${inst.tipo}</span>
+              <span class="text-[11px] text-slate-500">${inst.regulador}</span>
+            </div>
+            <h3 class="text-base font-bold text-navy-900 mt-1 leading-tight">${inst.nombre}</h3>
+            <p class="text-xs text-slate-500 mt-0.5">${inst.sub}</p>
+          </div>
+        </div>
+
+        <div class="px-5 py-4 grid grid-cols-3 gap-3">
+          <div>
+            <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Tasa</p>
+            <p class="text-base font-extrabold text-navy-900 mt-0.5">${inst.tasa}</p>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Plazo</p>
+            <p class="text-base font-extrabold text-navy-900 mt-0.5">${inst.plazo}</p>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Monto</p>
+            <p class="text-base font-extrabold text-navy-900 mt-0.5">${inst.monto}</p>
+          </div>
+        </div>
+
+        <div class="px-5 pb-4">
+          <p class="section-title">Requisitos clave</p>
+          <p class="text-sm text-slate-700 mt-1.5">${inst.requisitos}</p>
+        </div>
+
+        <div class="px-5 pb-5 mt-auto">
+          <div class="rounded-xl bg-navy-50 border border-navy-100 p-3 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-white border border-navy-100 flex items-center justify-center">
+              <i data-lucide="shield-check" class="w-4 h-4 text-navy-700"></i>
+            </div>
+            <div class="text-xs leading-tight">
+              <p class="text-slate-500">Custodia</p>
+              <p class="font-semibold text-navy-900">${inst.custodia}</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function swipeJoven(direction) {
+    if (state.isAnimating) return;
+    const remaining = data.instrumentos.length - state.jovenIdx;
+    if (remaining <= 0) return;
+
+    const inst = data.instrumentos[state.jovenIdx];
+    const topCard = $('#joven-stack .swipe-card[data-stack="0"]');
+    if (!topCard) return;
+
+    state.isAnimating = true;
+    topCard.classList.add(direction === 'accept' ? 'is-out-right' : 'is-out-left');
+
+    setTimeout(() => {
+      state.jovenSwipes[inst.id] = direction;
+      state.jovenIdx += 1;
+
+      if (direction === 'accept') {
+        if (inst.matchOnAccept && !state.jovenMatches.includes(inst.id)) {
+          state.jovenMatches.push(inst.id);
+          openMatchModal({
+            title: `¡Match con ${inst.nombre}!`,
+            subtitle: 'Ambos lados aceptaron el vínculo. Ya podés iniciar el contacto.',
+            cta: () => openJovenDetail(inst.id)
+          });
+        } else {
+          showToast('Postulación enviada. Esperando respuesta.');
+        }
+      } else {
+        showToast('Pasaste. Buscamos otro calce.');
+      }
+
+      renderJovenStack();
+      state.isAnimating = false;
+    }, 320);
+  }
+
+  function resetJovenFeed() {
+    state.jovenIdx = 0;
+    state.jovenSwipes = {};
+    renderJovenStack();
+  }
+
+  // -------- JOVEN MATCHES LIST --------
+  function renderJovenMatches() {
+    const list = $('#joven-matches-list');
+    const empty = $('#joven-matches-empty');
+    const count = $('#joven-matches-count');
+    if (!list) return;
+
+    const items = state.jovenMatches.map(id => data.instrumentos.find(i => i.id === id)).filter(Boolean);
+    count.textContent = items.length;
+
+    if (items.length === 0) {
+      list.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+
+    list.innerHTML = items.map(inst => `
+      <button class="w-full text-left rounded-2xl bg-white border border-navy-100 shadow-card p-4 flex items-center gap-3" onclick="openJovenDetail('${inst.id}')">
+        <div class="w-11 h-11 rounded-xl bg-accent-50 border border-accent-100 text-accent-700 flex items-center justify-center">
+          <i data-lucide="${inst.icon}" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2"><span class="chip">${inst.tipo}</span><span class="text-[11px] text-slate-500">${inst.tasa}</span></div>
+          <p class="text-sm font-bold text-navy-900 mt-1 truncate">${inst.nombre}</p>
+          <p class="text-xs text-slate-500 mt-0.5 truncate">${inst.sub} · ${inst.plazo}</p>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+      </button>
+    `).join('');
+    refreshIcons();
+  }
+
+  // -------- JOVEN DETAIL --------
+  function openJovenDetail(id) {
+    const inst = data.instrumentos.find(i => i.id === id);
+    if (!inst) return;
+    closeMatchModal();
+
+    const cuota = cuotaMensual(data.joven.monto, inst.tasaNum, inst.plazoNum);
+    const costoTotal = cuota * inst.plazoNum * 12;
+
+    $('#joven-detail-title').textContent = inst.nombre;
+    $('#joven-detail-body').innerHTML = `
+      <div class="rounded-2xl bg-navy-900 text-white p-5 relative overflow-hidden">
+        <div class="absolute -top-12 -right-10 w-44 h-44 rounded-full bg-accent-500/15 blur-2xl"></div>
+        <div class="relative flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center">
+            <i data-lucide="${inst.icon}" class="w-5 h-5 text-accent-300"></i>
+          </div>
+          <div>
+            <span class="chip" style="background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.15)">${inst.tipo}</span>
+            <p class="text-base font-bold mt-1.5">${inst.nombre}</p>
+            <p class="text-xs text-white/70 mt-0.5">${inst.sub}</p>
+          </div>
+        </div>
+        <div class="relative grid grid-cols-3 gap-3 mt-5">
+          <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Tasa</p><p class="text-base font-bold mt-0.5">${inst.tasa}</p></div>
+          <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Plazo</p><p class="text-base font-bold mt-0.5">${inst.plazo}</p></div>
+          <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Monto</p><p class="text-base font-bold mt-0.5">${inst.monto}</p></div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white border border-navy-100 shadow-card p-5">
+        <p class="section-title">Desglose financiero simulado</p>
+        <div class="mt-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-slate-500">Cuota mensual</p>
+              <p class="text-lg font-extrabold text-navy-900 mt-0.5">${fmtARS(Math.round(cuota))}</p>
+            </div>
+            <span class="chip accent">en UVA equivalente</span>
+          </div>
+          <div class="divider-soft pt-3 grid grid-cols-2 gap-3">
+            <div><p class="text-xs text-slate-500">Costo total</p><p class="text-sm font-bold text-navy-900 mt-0.5">${fmtARS(Math.round(costoTotal))}</p></div>
+            <div><p class="text-xs text-slate-500">Plazo</p><p class="text-sm font-bold text-navy-900 mt-0.5">${inst.plazoNum} años · ${inst.plazoNum * 12} cuotas</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white border border-navy-100 shadow-card p-5">
+        <p class="section-title">Cronograma resumido</p>
+        <div class="mt-3 space-y-2.5">
+          ${[1, 5, 10, inst.plazoNum].map(y => {
+            const acumulado = cuota * y * 12;
+            return `
+              <div class="flex items-center justify-between text-sm">
+                <div class="flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-full bg-navy-50 text-navy-700 text-[11px] font-bold flex items-center justify-center">${y}</span>
+                  <span class="text-slate-700">año ${y === 1 ? '' : y === inst.plazoNum ? '(cierre)' : ''}</span>
+                </div>
+                <span class="font-semibold text-navy-900">${fmtARS(Math.round(acumulado))}</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-accent-50 border border-accent-100 p-4 flex items-start gap-3">
+        <i data-lucide="info" class="w-4 h-4 text-accent-700 mt-0.5"></i>
+        <p class="text-xs text-accent-700 leading-relaxed">Custodia <strong>${inst.custodia}</strong>. Regulado por <strong>${inst.regulador}</strong>. Valores en UVA equivalente; sujetos a actualización por inflación.</p>
+      </div>
+
+      <button class="w-full gradient-cta text-white font-semibold py-3.5 rounded-2xl flex items-center justify-center gap-2" onclick="showToast('Solicitud enviada al área de originación.')">
+        Iniciar contacto <i data-lucide="message-circle" class="w-4 h-4"></i>
+      </button>
+    `;
+
+    showScreen('screen-joven-detail');
+  }
+
+  // -------- INVERSOR FEED --------
+  function renderInvStack() {
+    const stack = $('#inv-stack');
+    const empty = $('#inv-empty');
+    if (!stack) return;
+
+    const remaining = data.perfilesJoven.length - state.invIdx;
+    $('#inv-counter').textContent = remaining;
+
+    if (remaining <= 0) {
+      stack.innerHTML = '';
+      empty.classList.remove('hidden');
+      refreshIcons();
+      return;
+    }
+    empty.classList.add('hidden');
+
+    const visible = data.perfilesJoven.slice(state.invIdx, state.invIdx + 3);
+    stack.innerHTML = visible.map((p, idx) => youthCardHTML(p, idx)).reverse().join('');
+    refreshIcons();
+  }
+
+  function youthCardHTML(p, stackIdx) {
+    const subLabels = ['Crediticio', 'Arraigo', 'Propósito', 'Estabilidad'];
+    return `
+      <article class="swipe-card" data-stack="${stackIdx}" data-id="${p.id}">
+        <div class="px-5 pt-5 pb-4 flex items-start gap-3 border-b border-navy-100">
+          <div class="avatar">${p.initials}</div>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-base font-bold text-navy-900 truncate">${p.name}</h3>
+            <p class="text-xs text-slate-500">${p.age} años · ${p.profession}</p>
+            <div class="flex items-center gap-1.5 mt-1.5 text-[11px] text-slate-600">
+              <i data-lucide="map-pin" class="w-3 h-3 text-accent-600"></i>
+              <span>${p.ciudad}</span>
+              <span class="text-slate-300">·</span>
+              <span>${p.education}</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Score</p>
+            <p class="text-2xl font-extrabold text-navy-900 leading-tight">${p.score.toFixed(1)}</p>
+          </div>
+        </div>
+
+        <div class="px-5 py-4 grid grid-cols-2 gap-3">
+          <div>
+            <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Solicita</p>
+            <p class="text-base font-extrabold text-navy-900 mt-0.5">${fmtCompact(p.monto)}</p>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Plazo</p>
+            <p class="text-base font-extrabold text-navy-900 mt-0.5">${p.plazo} años</p>
+          </div>
+        </div>
+
+        <div class="px-5 pb-3">
+          <p class="text-[11px] text-slate-600 leading-relaxed">${p.narrative}</p>
+        </div>
+
+        <div class="px-5 pb-4 grid grid-cols-2 gap-x-4 gap-y-2.5">
+          ${p.subscores.map((v, i) => `
+            <div>
+              <div class="flex justify-between text-[11px] mb-1">
+                <span class="text-slate-600 font-medium">${subLabels[i]}</span>
+                <span class="text-navy-900 font-bold">${v.toFixed(1)}</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" style="width: ${v * 10}%"></div></div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="px-5 pb-5 mt-auto">
+          <div class="rounded-xl bg-navy-50 border border-navy-100 p-3">
+            <div class="flex items-center justify-between mb-1.5">
+              <p class="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Calce con tu perfil</p>
+              <span class="text-sm font-bold text-navy-900">${p.calce}%</span>
+            </div>
+            <div class="calce-bar"><span style="width: ${p.calce}%"></span></div>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function swipeInversor(direction) {
+    if (state.isAnimating) return;
+    const remaining = data.perfilesJoven.length - state.invIdx;
+    if (remaining <= 0) return;
+
+    const profile = data.perfilesJoven[state.invIdx];
+    const topCard = $('#inv-stack .swipe-card[data-stack="0"]');
+    if (!topCard) return;
+
+    state.isAnimating = true;
+    topCard.classList.add(direction === 'accept' ? 'is-out-right' : 'is-out-left');
+
+    setTimeout(() => {
+      state.invSwipes[profile.id] = direction;
+      state.invIdx += 1;
+
+      if (direction === 'accept') {
+        if (profile.matchOnAccept && !state.invMatches.includes(profile.id)) {
+          state.invMatches.push(profile.id);
+          openMatchModal({
+            title: `¡Match con ${profile.name}!`,
+            subtitle: 'El joven aceptó el vínculo. Iniciá la due diligence cuando quieras.',
+            cta: () => openInvDetail(profile.id)
+          });
+        } else {
+          showToast('Perfil agregado a tu shortlist.');
+        }
+      } else {
+        showToast('Pasaste. Buscamos otro calce.');
+      }
+
+      renderInvStack();
+      state.isAnimating = false;
+    }, 320);
+  }
+
+  function resetInvFeed() {
+    state.invIdx = 0;
+    state.invSwipes = {};
+    renderInvStack();
+  }
+
+  // -------- INVERSOR MATCHES --------
+  function renderInvMatches() {
+    const list = $('#inv-matches-list');
+    const empty = $('#inv-matches-empty');
+    const count = $('#inv-matches-count');
+    if (!list) return;
+
+    const items = state.invMatches.map(id => data.perfilesJoven.find(p => p.id === id)).filter(Boolean);
+    count.textContent = items.length;
+
+    if (items.length === 0) {
+      list.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+
+    list.innerHTML = items.map(p => `
+      <button class="w-full text-left rounded-2xl bg-white border border-navy-100 shadow-card p-4 flex items-center gap-3" onclick="openInvDetail('${p.id}')">
+        <div class="avatar sm">${p.initials}</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <p class="text-sm font-bold text-navy-900 truncate">${p.name}</p>
+            <span class="chip accent">${p.score.toFixed(1)}</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-0.5 truncate">${p.profession} · ${p.ciudad}</p>
+          <p class="text-[11px] text-slate-600 mt-1">${fmtCompact(p.monto)} · ${p.plazo} años · calce ${p.calce}%</p>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+      </button>
+    `).join('');
+    refreshIcons();
+  }
+
+  // -------- INVERSOR DETAIL --------
+  function openInvDetail(id) {
+    const p = data.perfilesJoven.find(x => x.id === id);
+    if (!p) return;
+    closeMatchModal();
+
+    const subLabels = ['Crediticio', 'Arraigo territorial', 'Propósito profesional', 'Estabilidad'];
+
+    $('#inv-detail-title').textContent = p.name;
+    $('#inv-detail-body').innerHTML = `
+      <div class="rounded-2xl bg-navy-900 text-white p-5 relative overflow-hidden">
+        <div class="absolute -top-12 -right-10 w-44 h-44 rounded-full bg-accent-500/15 blur-2xl"></div>
+        <div class="relative flex items-center gap-4">
+          <div class="avatar lg ring-soft">${p.initials}</div>
+          <div class="flex-1">
+            <p class="text-base font-bold">${p.name}</p>
+            <p class="text-xs text-white/70 mt-0.5">${p.age} años · ${p.profession} · ${p.education}</p>
+            <div class="flex items-center gap-1.5 mt-2 text-xs text-white/80">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5 text-accent-300"></i><span>${p.ciudad}</span>
+            </div>
+          </div>
+        </div>
+        <p class="relative text-[13px] text-white/75 leading-relaxed mt-4">${p.narrative}</p>
+
+        <div class="relative grid grid-cols-3 gap-3 mt-5">
+          <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Score</p><p class="text-base font-bold mt-0.5">${p.score.toFixed(1)}</p></div>
+          <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Solicita</p><p class="text-base font-bold mt-0.5">${fmtCompact(p.monto)}</p></div>
+          <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Plazo</p><p class="text-base font-bold mt-0.5">${p.plazo} años</p></div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white border border-navy-100 shadow-card p-5">
+        <p class="section-title">Vinder Score · desglose</p>
+        <div class="mt-4 space-y-3">
+          ${p.subscores.map((v, i) => `
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-700 font-medium">${subLabels[i]}</span>
+                <span class="text-navy-900 font-bold">${v.toFixed(1)}</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" style="width: ${v * 10}%"></div></div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white border border-navy-100 shadow-card p-5">
+        <div class="flex items-center justify-between">
+          <p class="section-title">Documentación cargada</p>
+          <span class="chip accent"><i data-lucide="file-check-2" class="w-3 h-3"></i> 4/5</span>
+        </div>
+        <div class="mt-3">
+          ${[
+            { label: 'DNI y constancia de CUIT', ok: true },
+            { label: 'Título universitario validado UNLP', ok: true },
+            { label: 'Recibos de sueldo / certificación contable (últimos 6 meses)', ok: true },
+            { label: 'Referencias bancarias / historial Veraz', ok: true },
+            { label: 'Documentación municipal de la propiedad objetivo', ok: false }
+          ].map(d => `
+            <div class="check-row ${d.ok ? '' : 'pending'}">
+              <span class="check-icon"><i data-lucide="${d.ok ? 'check' : 'clock'}" class="w-3 h-3"></i></span>
+              <span class="flex-1">${d.label}</span>
+              <span class="text-[11px] ${d.ok ? 'text-accent-600' : 'text-orange-600'} font-semibold">${d.ok ? 'Verificado' : 'Pendiente'}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white border border-navy-100 shadow-card p-5">
+        <p class="section-title">Verificaciones realizadas</p>
+        <div class="mt-3">
+          ${[
+            'KYC y antifraude (vía Renaper)',
+            'Validación AFIP de actividad declarada',
+            'Score crediticio cruzado con BCRA',
+            'Confirmación de arraigo (residencia ≥ 3 años)'
+          ].map(v => `
+            <div class="check-row">
+              <span class="check-icon"><i data-lucide="check" class="w-3 h-3"></i></span>
+              <span>${v}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <button class="w-full gradient-cta text-white font-semibold py-3.5 rounded-2xl flex items-center justify-center gap-2" onclick="showToast('Equipo de originación notificado.')">
+        Iniciar contacto <i data-lucide="message-circle" class="w-4 h-4"></i>
+      </button>
+    `;
+
+    showScreen('screen-inv-detail');
+  }
+
+  // -------- MATCH MODAL --------
+  let matchCtaHandler = null;
+  function openMatchModal({ title, subtitle, cta }) {
+    $('#match-modal-title').textContent = title;
+    $('#match-modal-subtitle').textContent = subtitle;
+    matchCtaHandler = cta;
+    $('#match-modal').classList.add('is-open');
+    spawnHearts();
+    refreshIcons();
+  }
+  function closeMatchModal() {
+    $('#match-modal').classList.remove('is-open');
+  }
+
+  // -------- HEARTS RAIN --------
+  const HEART_COLORS = ['#ec4899', '#22d3ee', '#10b981', '#f472b6', '#0ea5e9', '#34d399'];
+  const HEART_SVG = '<svg viewBox="0 0 24 24" width="100%" height="100%" fill="currentColor" aria-hidden="true"><path d="M12 21.3l-1.5-1.4C5 14.9 2 12 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4 0.8 4.5 2.2C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.5-3 6.4-8.5 11.4L12 21.3z"/></svg>';
+  let heartsTimer = null;
+
+  function spawnHearts() {
+    const layer = document.getElementById('hearts-layer');
+    if (!layer) return;
+    layer.innerHTML = '';
+    clearTimeout(heartsTimer);
+
+    const N = 18;
+    const frag = document.createDocumentFragment();
+
+    for (let i = 0; i < N; i++) {
+      const h = document.createElement('div');
+      h.className = 'heart-particle';
+      h.innerHTML = HEART_SVG;
+
+      const left = 6 + Math.random() * 88;
+      const delay = Math.random() * 0.55;
+      const duration = 2.2 + Math.random() * 1.6;
+      const size = 18 + Math.random() * 26;
+      const drift = (Math.random() - 0.5) * 140;
+      const rotate = (Math.random() - 0.5) * 36;
+      const color = HEART_COLORS[Math.floor(Math.random() * HEART_COLORS.length)];
+      const maxOp = 0.75 + Math.random() * 0.2;
+
+      h.style.left = left + '%';
+      h.style.width = size + 'px';
+      h.style.height = size + 'px';
+      h.style.color = color;
+      h.style.animationDelay = delay + 's';
+      h.style.animationDuration = duration + 's';
+      h.style.setProperty('--drift', drift + 'px');
+      h.style.setProperty('--r', rotate + 'deg');
+      h.style.setProperty('--max-op', String(maxOp));
+
+      frag.appendChild(h);
+    }
+    layer.appendChild(frag);
+
+    heartsTimer = setTimeout(() => { layer.innerHTML = ''; }, 5000);
+  }
+  document.getElementById('match-modal-cta').addEventListener('click', () => {
+    closeMatchModal();
+    if (typeof matchCtaHandler === 'function') matchCtaHandler();
+  });
+
+  // -------- TOAST --------
+  let toastTimer = null;
+  function showToast(msg) {
+    const t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('is-visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('is-visible'), 1800);
+  }
+
+  // -------- INIT --------
+  function init() {
+    renderBottomNavs();
+
+    if (state.role === 'joven') showScreen('screen-joven-perfil');
+    else if (state.role === 'inversor') showScreen('screen-inv-perfil');
+    else showScreen('screen-splash');
+
+    refreshIcons();
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
