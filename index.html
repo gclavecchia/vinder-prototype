@@ -393,7 +393,7 @@
           <div class="mt-8 text-center">
             <p class="text-accent-300 text-xs font-semibold tracking-[0.18em] uppercase">Acceso a la vivienda</p>
             <p class="mt-3 text-white/80 text-[13px] leading-relaxed max-w-[320px] mx-auto">
-              Conectamos jóvenes profesionales bonaerenses con instrumentos de financiamiento alternativos al crédito hipotecario tradicional.
+              Conectamos a hogares jóvenes de Rivadavia con el suelo, la financiación y la construcción que el municipio ya tiene — en un solo lugar.
             </p>
           </div>
 
@@ -802,189 +802,163 @@
       education: 'UNLP',
       origin: 'La Plata (UNLP)',
       destination: 'América · Rivadavia, PBA',
-      monto: 80_000_000,
+      monto: 54_600_000,
       plazo: 20,
-      superficie: 60,
-      score: 7.8,
+      superficie: 50,
+      score: 8.3,
       subscores: [
-        { key: 'crediticio', label: 'Crediticio', detail: 'Historial formal', value: 6.5 },
-        { key: 'arraigo', label: 'Arraigo territorial', detail: 'Vínculo con América (Rivadavia)', value: 9.2 },
-        { key: 'proposito', label: 'Propósito profesional', detail: 'Capacidad de generar ingresos', value: 8.4 },
-        { key: 'estabilidad', label: 'Estabilidad', detail: 'Situación familiar y laboral', value: 7.1 }
+        { key: 'pago', label: 'Capacidad de pago', detail: 'Cuota proyectada / ingreso del hogar (meta < 25%)', value: 8.4 },
+        { key: 'suelo', label: 'Acceso a suelo', detail: 'Lote en "Mi Tierra" / Banco de Tierras', value: 9.0 },
+        { key: 'anticipo', label: 'Anticipo cubierto', detail: 'El lote computa como equity (LTV)', value: 8.6 },
+        { key: 'formalidad', label: 'Formalidad de ingresos', detail: 'Registración y estabilidad laboral', value: 7.0 }
       ],
       narrative: 'Médica recién recibida en UNLP, vuelve a su ciudad natal América (partido de Rivadavia) para integrarse al hospital municipal Dr. Saturnino Unzué.'
     },
 
     instrumentos: [
       {
-        id: 'vnd-hip',
-        tipo: 'Token',
-        nombre: 'Token VND-Hipotecario',
-        sub: 'Stablecoin atada a UVA · alcance PBA',
-        tasa: '4% UVA',
-        tasaNum: 4,
-        plazo: '20 años',
-        plazoNum: 20,
-        monto: 'Hasta $120M',
-        requisitos: 'Score ≥ 7.0 · Edad 25–35',
-        custodia: 'Banco Provincia',
-        regulador: 'BCRA · CNV',
-        icon: 'coins',
+        id: 'lote-mi-tierra',
+        categoria: 'suelo',
+        tipo: 'Suelo',
+        nombre: 'Lote · Programa "Rivadavia, Mi Tierra"',
+        sub: 'Municipio de Rivadavia · 83 lotes (2025)',
+        tasa: '50% financiado',
+        tasaNum: 0,
+        plazo: 'En cuotas',
+        plazoNum: 5,
+        monto: 'Lote urbanizado',
+        requisitos: 'Residente del partido · 1ª vivienda · cupos sociales, discapacidad y personas solas',
+        custodia: 'Banco de Tierras municipal',
+        regulador: 'Ord. 3.907/2016 · "Mi Tierra" 2025',
+        icon: 'map-pin',
         accent: 'accent',
         matchOnAccept: true
       },
       {
-        id: 'raiz',
-        tipo: 'Token',
-        nombre: 'Token Raíz',
-        sub: 'Instrumento DeFi · sandbox CNV',
-        tasa: '6% UVA',
+        id: 'banco-tierras',
+        categoria: 'suelo',
+        tipo: 'Suelo',
+        nombre: 'Lote del Banco de Tierras (plusvalía)',
+        sub: 'Captura del 14% · Ord. 3.803/2016',
+        tasa: 'Aporte / equity',
+        tasaNum: 0,
+        plazo: '—',
+        plazoNum: 1,
+        monto: 'Computa como anticipo',
+        requisitos: 'Adjudicación por sorteo público entre quienes superan el umbral objetivo',
+        custodia: 'Fondo de Desarrollo Urbano (Ord. 4.188/2019)',
+        regulador: 'Municipio de Rivadavia · Ley 14.449',
+        icon: 'recycle',
+        accent: 'navy',
+        matchOnAccept: true
+      },
+      {
+        id: 'uva-bna',
+        categoria: 'credito',
+        tipo: 'Crédito',
+        nombre: 'Crédito UVA Banco Nación "+Hogares"',
+        sub: 'Hipotecario 1ª vivienda',
+        tasa: '6% TNA fija',
         tasaNum: 6,
-        plazo: '15 años',
-        plazoNum: 15,
-        monto: 'Hasta $90M',
-        requisitos: 'KYC PBA · Score ≥ 6.5',
-        custodia: 'Multifirma descentralizada',
-        regulador: 'CNV (sandbox)',
-        icon: 'circle-dot',
-        accent: 'navy',
-        matchOnAccept: false
-      },
-      {
-        id: 'hornero',
-        tipo: 'Cooperativa',
-        nombre: 'Cooperativa "El Hornero" América Ltda.',
-        sub: 'América · partido de Rivadavia',
-        tasa: '3.5% UVA',
-        tasaNum: 3.5,
-        plazo: '25 años',
-        plazoNum: 25,
-        monto: 'Hasta $100M',
-        requisitos: 'Aporte previo ≥ 6 meses',
-        custodia: 'Banco Credicoop',
-        regulador: 'INAES',
-        icon: 'users',
-        accent: 'accent',
-        matchOnAccept: true
-      },
-      {
-        id: 'tierra-propia',
-        tipo: 'Cooperativa',
-        nombre: 'Cooperativa "Tierra Propia" Rivadavia Ltda.',
-        sub: 'Casco urbano de América',
-        tasa: '4.2% UVA',
-        tasaNum: 4.2,
-        plazo: '20 años',
-        plazoNum: 20,
-        monto: 'Hasta $85M',
-        requisitos: 'Residencia en el partido · ingresos formales',
-        custodia: 'Banco Provincia',
-        regulador: 'INAES',
-        icon: 'house',
-        accent: 'navy',
-        matchOnAccept: false
-      },
-      {
-        id: 'raices-oeste',
-        tipo: 'Mutual',
-        nombre: 'Mutual "Raíces del Oeste" América',
-        sub: 'Centro mutualista de América',
-        tasa: '3.8% UVA',
-        tasaNum: 3.8,
-        plazo: '22 años',
-        plazoNum: 22,
-        monto: 'Hasta $95M',
-        requisitos: 'Asociado activo ≥ 12 meses',
-        custodia: 'Banco Provincia',
-        regulador: 'INAES',
-        icon: 'sprout',
-        accent: 'accent',
-        matchOnAccept: true
-      },
-      {
-        id: 'habitar-riv',
-        tipo: 'Cooperativa',
-        nombre: 'Cooperativa Habitar Rivadavia',
-        sub: 'Vivienda profesional joven · Rivadavia',
-        tasa: '4.5% UVA',
-        tasaNum: 4.5,
-        plazo: '18 años',
-        plazoNum: 18,
-        monto: 'Hasta $110M',
-        requisitos: 'Score ≥ 6.0 · profesional con título',
-        custodia: 'Banco Nación',
-        regulador: 'INAES',
-        icon: 'building',
-        accent: 'navy',
-        matchOnAccept: false
-      },
-      {
-        id: 'mutual-municipales',
-        tipo: 'Mutual',
-        nombre: 'Mutual Empleados Municipales Rivadavia',
-        sub: 'Empleados públicos del partido',
-        tasa: '3.2% UVA',
-        tasaNum: 3.2,
-        plazo: '25 años',
-        plazoNum: 25,
-        monto: 'Hasta $90M',
-        requisitos: 'Empleado municipal con ≥ 2 años de antigüedad',
-        custodia: 'Banco Provincia',
-        regulador: 'INAES',
-        icon: 'briefcase',
-        accent: 'accent',
-        matchOnAccept: true
-      },
-      {
-        id: 'agraria-america',
-        tipo: 'Cooperativa',
-        nombre: 'Cooperativa Agraria de América Ltda.',
-        sub: 'Línea habitacional para socios productores',
-        tasa: '3.9% UVA',
-        tasaNum: 3.9,
-        plazo: '22 años',
-        plazoNum: 22,
-        monto: 'Hasta $115M',
-        requisitos: 'Productor asociado o familia directa',
-        custodia: 'Banco Credicoop',
-        regulador: 'INAES',
-        icon: 'wheat',
-        accent: 'accent',
-        matchOnAccept: true
-      },
-      {
-        id: 'vivir-rivadavia',
-        tipo: 'Municipal',
-        nombre: 'Programa "Vivir en Rivadavia"',
-        sub: 'Plan municipal subsidiado de vivienda joven',
-        tasa: '2.5% UVA',
-        tasaNum: 2.5,
         plazo: '30 años',
         plazoNum: 30,
-        monto: 'Hasta $70M',
-        requisitos: 'Residente del partido · primera vivienda · < 35 años',
-        custodia: 'Banco Provincia',
-        regulador: 'IVBA · Municipio Rivadavia',
+        monto: 'LTV 75% · hasta 260.000 UVA',
+        requisitos: 'Cuota ≤ 25% del ingreso · relación de dependencia · Opción Tope de Cuota por CVS',
+        custodia: 'Banco de la Nación Argentina',
+        regulador: 'BCRA',
         icon: 'landmark',
         accent: 'accent',
         matchOnAccept: true
       },
       {
-        id: 'electrica-america',
-        tipo: 'Cooperativa',
-        nombre: 'Coop. Eléctrica de América — Plan Habitar',
-        sub: 'Línea habitacional · socios consumidores',
-        tasa: '4.0% UVA',
-        tasaNum: 4.0,
+        id: 'uva-bapro',
+        categoria: 'credito',
+        tipo: 'Crédito',
+        nombre: 'Crédito Hipotecario Banco Provincia',
+        sub: 'Línea vivienda PBA · condiciones 2026 a confirmar',
+        tasa: 'UVA',
+        tasaNum: 7,
         plazo: '20 años',
         plazoNum: 20,
-        monto: 'Hasta $80M',
-        requisitos: 'Socio activo ≥ 12 meses, sin atrasos',
-        custodia: 'Banco Provincia',
+        monto: 'Bonificación si la cuota supera el 35% del ingreso',
+        requisitos: 'Residencia en PBA · ingresos formales (condiciones puntuales por confirmar)',
+        custodia: 'Banco de la Provincia de Buenos Aires',
+        regulador: 'BCRA',
+        icon: 'building-2',
+        accent: 'navy',
+        matchOnAccept: false
+      },
+      {
+        id: 'circulo-cerrado',
+        categoria: 'credito',
+        tipo: 'Municipal',
+        nombre: 'Círculo Cerrado Municipal',
+        sub: 'Para hogares que no califican al banco',
+        tasa: 'Sin spread',
+        tasaNum: 4,
+        plazo: '20 años',
+        plazoNum: 20,
+        monto: 'El municipio financia la construcción',
+        requisitos: 'Cuota indexada por CVS (modelo Trenque Lauquen, Ord. 891/94)',
+        custodia: 'Municipio de Rivadavia',
+        regulador: 'Ley 14.449 PBA',
+        icon: 'users',
+        accent: 'accent',
+        matchOnAccept: true
+      },
+      {
+        id: 'construccion-3d',
+        categoria: 'construccion',
+        tipo: 'Construcción',
+        nombre: 'Construcción 3D (3DCP)',
+        sub: 'Envolvente en 48 hs · −30% de costo',
+        tasa: 'USD 700–750/m²',
+        tasaNum: 0,
+        plazo: '≈ 3,5 meses',
+        plazoNum: 1,
+        monto: 'Vivienda 50 m² ≈ USD 37.500',
+        requisitos: '⚠️ Requiere Certificado de Aptitud Técnica (CAT) para acceder a hipoteca',
+        custodia: 'Operador privado / cooperativa',
+        regulador: 'INTI · Secretaría de Hábitat',
+        icon: 'printer',
+        accent: 'navy',
+        matchOnAccept: false
+      },
+      {
+        id: 'fideicomiso-rwa',
+        categoria: 'fondeo',
+        tipo: 'Fondeo',
+        nombre: 'Fideicomiso / Tokenización RWA',
+        sub: 'Capa opcional de escala · no es requisito del hogar',
+        tasa: 'Inversión colectiva',
+        tasaNum: 0,
+        plazo: 'Por proyecto',
+        plazoNum: 1,
+        monto: 'Hasta 1.500.000 UVA por emisión',
+        requisitos: 'Financiamiento colectivo con autorización automática · KYC/AML',
+        custodia: 'Fiduciario habilitado · PSAV',
+        regulador: 'CNV · RG 1069/2025, 1087/2025 y 1125/2026',
+        icon: 'coins',
+        accent: 'accent',
+        matchOnAccept: false
+      },
+      {
+        id: 'coop-electrica',
+        categoria: 'credito',
+        tipo: 'Cooperativa',
+        nombre: 'Coop. Eléctrica de América — Plan habitacional',
+        sub: 'Socios consumidores · 28 viviendas entregadas',
+        tasa: 'A confirmar',
+        tasaNum: 5,
+        plazo: '10 años',
+        plazoNum: 10,
+        monto: 'Adjudicación por sorteo',
+        requisitos: 'Socio activo (actividad en vivienda a confirmar con la entidad)',
+        custodia: 'Cooperativa Eléctrica de América',
         regulador: 'INAES',
         icon: 'zap',
         accent: 'navy',
-        matchOnAccept: false
+        matchOnAccept: true
       }
     ],
 
@@ -1447,39 +1421,27 @@
     if (!inst) return;
     closeMatchModal();
 
-    const cuota = cuotaMensual(data.joven.monto, inst.tasaNum, inst.plazoNum);
+    const esCredito = inst.categoria === 'credito';
+    const ingresoHogar = 2_473_500; // ≈ USD 1.700 al MEP ($1.455) — núcleo §5
+    const cuota = esCredito ? cuotaMensual(data.joven.monto, inst.tasaNum, inst.plazoNum) : 0;
     const costoTotal = cuota * inst.plazoNum * 12;
+    const ratioPct = esCredito ? Math.round((cuota / ingresoHogar) * 100) : 0;
+    const okRatio = ratioPct <= 25;
 
-    $('#joven-detail-title').textContent = inst.nombre;
-    $('#joven-detail-body').innerHTML = `
-      <div class="rounded-2xl bg-navy-900 text-white p-5 relative overflow-hidden">
-        <div class="absolute -top-12 -right-10 w-44 h-44 rounded-full bg-accent-500/15 blur-2xl"></div>
-        <div class="relative flex items-center gap-3">
-          <div class="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center">
-            <i data-lucide="${inst.icon}" class="w-5 h-5 text-accent-300"></i>
-          </div>
-          <div>
-            <span class="chip" style="background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.15)">${inst.tipo}</span>
-            <p class="text-base font-bold mt-1.5">${inst.nombre}</p>
-            <p class="text-xs text-white/70 mt-0.5">${inst.sub}</p>
-          </div>
-        </div>
-        <div class="relative grid grid-cols-3 gap-3 mt-5">
-          <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Tasa</p><p class="text-base font-bold mt-0.5">${inst.tasa}</p></div>
-          <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Plazo</p><p class="text-base font-bold mt-0.5">${inst.plazo}</p></div>
-          <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Monto</p><p class="text-base font-bold mt-0.5">${inst.monto}</p></div>
-        </div>
-      </div>
-
+    const bloqueFinanciero = esCredito ? `
       <div class="rounded-2xl bg-white border border-navy-100 shadow-card p-5">
         <p class="section-title">Desglose financiero simulado</p>
         <div class="mt-4 space-y-3">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-xs text-slate-500">Cuota mensual</p>
+              <p class="text-xs text-slate-500">Cuota mensual estimada</p>
               <p class="text-lg font-extrabold text-navy-900 mt-0.5">${fmtARS(Math.round(cuota))}</p>
             </div>
-            <span class="chip accent">en UVA equivalente</span>
+            <span class="chip ${okRatio ? 'accent' : ''}">${ratioPct}% del ingreso</span>
+          </div>
+          <div class="rounded-xl border p-3 flex items-start gap-2 ${okRatio ? 'bg-accent-50 border-accent-100' : 'bg-amber-50 border-amber-200'}">
+            <i data-lucide="${okRatio ? 'check-circle-2' : 'alert-triangle'}" class="w-4 h-4 mt-0.5 ${okRatio ? 'text-accent-700' : 'text-amber-700'}"></i>
+            <p class="text-xs leading-tight ${okRatio ? 'text-accent-700' : 'text-amber-700'}">Relación cuota/ingreso ${okRatio ? 'dentro' : 'por encima'} del tope prudencial del 25% (BCRA). Préstamo de ${fmtARS(data.joven.monto)} con el lote como anticipo.</p>
           </div>
           <div class="divider-soft pt-3 grid grid-cols-2 gap-3">
             <div><p class="text-xs text-slate-500">Costo total</p><p class="text-sm font-bold text-navy-900 mt-0.5">${fmtARS(Math.round(costoTotal))}</p></div>
@@ -1505,10 +1467,43 @@
           }).join('')}
         </div>
       </div>
+    ` : `
+      <div class="rounded-2xl bg-white border border-navy-100 shadow-card p-5">
+        <p class="section-title">Cómo funciona</p>
+        <p class="text-sm text-slate-700 mt-2 leading-relaxed">${inst.requisitos}</p>
+        <div class="divider-soft pt-3 mt-3 grid grid-cols-2 gap-3">
+          <div><p class="text-xs text-slate-500">Tipo</p><p class="text-sm font-bold text-navy-900 mt-0.5">${inst.tipo}</p></div>
+          <div><p class="text-xs text-slate-500">Condición</p><p class="text-sm font-bold text-navy-900 mt-0.5">${inst.tasa}</p></div>
+        </div>
+      </div>
+    `;
+
+    $('#joven-detail-title').textContent = inst.nombre;
+    $('#joven-detail-body').innerHTML = `
+      <div class="rounded-2xl bg-navy-900 text-white p-5 relative overflow-hidden">
+        <div class="absolute -top-12 -right-10 w-44 h-44 rounded-full bg-accent-500/15 blur-2xl"></div>
+        <div class="relative flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center">
+            <i data-lucide="${inst.icon}" class="w-5 h-5 text-accent-300"></i>
+          </div>
+          <div>
+            <span class="chip" style="background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.15)">${inst.tipo}</span>
+            <p class="text-base font-bold mt-1.5">${inst.nombre}</p>
+            <p class="text-xs text-white/70 mt-0.5">${inst.sub}</p>
+          </div>
+        </div>
+        <div class="relative grid grid-cols-3 gap-3 mt-5">
+          <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Tasa</p><p class="text-base font-bold mt-0.5">${inst.tasa}</p></div>
+          <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Plazo</p><p class="text-base font-bold mt-0.5">${inst.plazo}</p></div>
+          <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Monto</p><p class="text-base font-bold mt-0.5">${inst.monto}</p></div>
+        </div>
+      </div>
+
+      ${bloqueFinanciero}
 
       <div class="rounded-2xl bg-accent-50 border border-accent-100 p-4 flex items-start gap-3">
         <i data-lucide="info" class="w-4 h-4 text-accent-700 mt-0.5"></i>
-        <p class="text-xs text-accent-700 leading-relaxed">Custodia <strong>${inst.custodia}</strong>. Regulado por <strong>${inst.regulador}</strong>. Valores en UVA equivalente; sujetos a actualización por inflación.</p>
+        <p class="text-xs text-accent-700 leading-relaxed">Custodia <strong>${inst.custodia}</strong>. Regulado por <strong>${inst.regulador}</strong>. Valores estimados sobre el caso testigo del modelo; sujetos a validación con el municipio.</p>
       </div>
 
       <button class="w-full gradient-cta text-white font-semibold py-3.5 rounded-2xl flex items-center justify-center gap-2" onclick="showToast('Solicitud enviada al área de originación.')">
