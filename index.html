@@ -1021,170 +1021,7 @@
   <script>
     // -------- DATA --------
     const data = {
-      instrumentos: [],
-
-      perfilesJoven: [
-        {
-          id: 'lucia',
-          initials: 'LF',
-          name: 'Lucía Fernández',
-          age: 27,
-          profession: 'Médica generalista',
-          education: 'UNLP',
-          ciudad: 'América (Rivadavia)',
-          monto: 80_000_000,
-          plazo: 20,
-          score: 7.8,
-          subscores: [6.5, 9.2, 8.4, 7.1],
-          narrative: 'Vuelve a América para integrarse al hospital municipal Dr. Saturnino Unzué.',
-          calce: 92,
-          matchOnAccept: true
-        },
-        {
-          id: 'mateo',
-          initials: 'MR',
-          name: 'Mateo Rivero',
-          age: 29,
-          profession: 'Ing. Agrónomo',
-          education: 'UNS',
-          ciudad: 'América (Rivadavia)',
-          monto: 95_000_000,
-          plazo: 22,
-          score: 8.1,
-          subscores: [7.8, 8.5, 8.7, 7.4],
-          narrative: 'Asesora cooperativas agrícolas del partido de Rivadavia, busca primera vivienda.',
-          calce: 88,
-          matchOnAccept: true
-        },
-        {
-          id: 'sofia',
-          initials: 'SP',
-          name: 'Sofía Pellegrini',
-          age: 26,
-          profession: 'Docente secundaria',
-          education: 'UNLPam',
-          ciudad: 'América (Rivadavia)',
-          monto: 65_000_000,
-          plazo: 25,
-          score: 7.2,
-          subscores: [6.0, 8.9, 7.5, 6.4],
-          narrative: 'Docente titularizada en la EEM N°2 de América, busca vivienda cercana al establecimiento.',
-          calce: 76,
-          matchOnAccept: false
-        },
-        {
-          id: 'tomas',
-          initials: 'TG',
-          name: 'Tomás Garrido',
-          age: 31,
-          profession: 'Dev full-stack',
-          education: 'UTN-FRBB',
-          ciudad: 'América (Rivadavia)',
-          monto: 110_000_000,
-          plazo: 18,
-          score: 8.5,
-          subscores: [8.7, 7.4, 9.1, 8.6],
-          narrative: 'Trabaja remoto desde América para empresa internacional, ingresos en USD declarados.',
-          calce: 91,
-          matchOnAccept: true
-        },
-        {
-          id: 'camila',
-          initials: 'CO',
-          name: 'Camila Ortiz',
-          age: 28,
-          profession: 'Veterinaria',
-          education: 'UNICEN',
-          ciudad: 'América (Rivadavia)',
-          monto: 72_000_000,
-          plazo: 23,
-          score: 7.6,
-          subscores: [7.0, 8.6, 7.9, 6.8],
-          narrative: 'Consultorio rural en América, vínculo fuerte con productores ganaderos del partido de Rivadavia.',
-          calce: 79,
-          matchOnAccept: false
-        },
-        {
-          id: 'joaquin',
-          initials: 'JM',
-          name: 'Joaquín Méndez',
-          age: 30,
-          profession: 'Contador público',
-          education: 'UNS',
-          ciudad: 'América (Rivadavia)',
-          monto: 88_000_000,
-          plazo: 20,
-          score: 7.9,
-          subscores: [7.6, 7.8, 8.2, 8.0],
-          narrative: 'Estudio contable en el casco urbano de América, casado, planea expandir su familia.',
-          calce: 85,
-          matchOnAccept: true
-        },
-        {
-          id: 'florencia',
-          initials: 'FC',
-          name: 'Florencia Cabral',
-          age: 25,
-          profession: 'Enfermera profesional',
-          education: 'ISFD América',
-          ciudad: 'América (Rivadavia)',
-          monto: 55_000_000,
-          plazo: 25,
-          score: 7.4,
-          subscores: [6.2, 9.5, 7.6, 6.4],
-          narrative: 'Enfermera del hospital municipal Dr. Saturnino Unzué, vínculo familiar fuerte con América.',
-          calce: 80,
-          matchOnAccept: true
-        },
-        {
-          id: 'diego',
-          initials: 'DS',
-          name: 'Diego Salazar',
-          age: 32,
-          profession: 'Abogado',
-          education: 'UBA',
-          ciudad: 'América (Rivadavia)',
-          monto: 105_000_000,
-          plazo: 18,
-          score: 8.3,
-          subscores: [8.5, 7.5, 8.7, 8.4],
-          narrative: 'Estudio jurídico en el casco urbano de América, asesora cooperativas y mutuales locales.',
-          calce: 87,
-          matchOnAccept: false
-        },
-        {
-          id: 'valentina',
-          initials: 'VI',
-          name: 'Valentina Iglesias',
-          age: 28,
-          profession: 'Arquitecta',
-          education: 'UNLP',
-          ciudad: 'América (Rivadavia)',
-          monto: 78_000_000,
-          plazo: 22,
-          score: 7.7,
-          subscores: [7.4, 8.2, 8.0, 7.2],
-          narrative: 'Arquitecta especializada en vivienda rural, proyecta construcciones en el partido de Rivadavia.',
-          calce: 84,
-          matchOnAccept: true
-        },
-        {
-          id: 'nicolas',
-          initials: 'NB',
-          name: 'Nicolás Bermúdez',
-          age: 30,
-          profession: 'Productor agropecuario',
-          education: 'Escuela Agrotécnica + UNLPam',
-          ciudad: 'América (Rivadavia)',
-          monto: 92_000_000,
-          plazo: 20,
-          score: 8.0,
-          subscores: [7.2, 9.7, 8.5, 7.5],
-          narrative: 'Productor agropecuario familiar de tercera generación, busca vivienda urbana cerca del campo.',
-          calce: 90,
-          matchOnAccept: true
-        }
-      ]
+      instrumentos: []
     };
 
     // -------- STATE --------
@@ -1197,7 +1034,7 @@
       jovenSwipes: {},
       invSwipes: {},
       jovenMatches: ['hornero'],
-      invMatches: ['mateo'],
+      invMatches: [],
       isAnimating: false
     };
 
@@ -1701,7 +1538,7 @@
       const empty = $('#inv-empty');
       if (!stack) return;
 
-      const remaining = data.perfilesJoven.length - state.invIdx;
+      const remaining = PERFILES.length - state.invIdx;
       $('#inv-counter').textContent = remaining;
 
       if (remaining <= 0) {
@@ -1712,7 +1549,7 @@
       }
       empty.classList.add('hidden');
 
-      const visible = data.perfilesJoven.slice(state.invIdx, state.invIdx + 3);
+      const visible = PERFILES.slice(state.invIdx, state.invIdx + 3);
       stack.innerHTML = visible.map((p, idx) => youthCardHTML(p, idx)).reverse().join('');
       refreshIcons();
     }
@@ -1742,7 +1579,7 @@
         <div class="px-5 py-4 grid grid-cols-2 gap-3">
           <div>
             <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Solicita</p>
-            <p class="text-base font-extrabold text-navy-900 mt-0.5">${fmtCompact(p.monto)}</p>
+            <p class="text-base font-extrabold text-navy-900 mt-0.5">${fmtCompact(p.montoSolicitado)}</p>
           </div>
           <div>
             <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Plazo</p>
@@ -1781,10 +1618,10 @@
 
     function swipeInversor(direction) {
       if (state.isAnimating) return;
-      const remaining = data.perfilesJoven.length - state.invIdx;
+      const remaining = PERFILES.length - state.invIdx;
       if (remaining <= 0) return;
 
-      const profile = data.perfilesJoven[state.invIdx];
+      const profile = PERFILES[state.invIdx];
       const topCard = $('#inv-stack .swipe-card[data-stack="0"]');
       if (!topCard) return;
 
@@ -1828,7 +1665,7 @@
       const count = $('#inv-matches-count');
       if (!list) return;
 
-      const items = state.invMatches.map(id => data.perfilesJoven.find(p => p.id === id)).filter(Boolean);
+      const items = state.invMatches.map(id => PERFILES.find(p => p.id === id)).filter(Boolean);
       count.textContent = items.length;
 
       if (items.length === 0) {
@@ -1847,7 +1684,7 @@
             <span class="chip accent">${p.score.toFixed(1)}</span>
           </div>
           <p class="text-[11px] text-slate-500 mt-0.5 truncate">${p.profession} · ${p.ciudad}</p>
-          <p class="text-[11px] text-slate-600 mt-1">${fmtCompact(p.monto)} · ${p.plazo} años · calce ${p.calce}%</p>
+          <p class="text-[11px] text-slate-600 mt-1">${fmtCompact(p.montoSolicitado)} · ${p.plazo} años · calce ${p.calce}%</p>
         </div>
         <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
       </button>
@@ -1857,7 +1694,7 @@
 
     // -------- INVERSOR DETAIL --------
     function openInvDetail(id) {
-      const p = data.perfilesJoven.find(x => x.id === id);
+      const p = PERFILES.find(x => x.id === id);
       if (!p) return;
       closeMatchModal();
 
@@ -1881,7 +1718,7 @@
 
         <div class="relative grid grid-cols-3 gap-3 mt-5">
           <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Score</p><p class="text-base font-bold mt-0.5">${p.score.toFixed(1)}</p></div>
-          <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Solicita</p><p class="text-base font-bold mt-0.5">${fmtCompact(p.monto)}</p></div>
+          <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Solicita</p><p class="text-base font-bold mt-0.5">${fmtCompact(p.montoSolicitado)}</p></div>
           <div><p class="text-[10px] uppercase text-white/60 tracking-wider">Plazo</p><p class="text-base font-bold mt-0.5">${p.plazo} años</p></div>
         </div>
       </div>
