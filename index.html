@@ -1633,15 +1633,13 @@
         state.invIdx += 1;
 
         if (direction === 'accept') {
-          if (profile.matchOnAccept && !state.invMatches.includes(profile.id)) {
+          if (!state.invMatches.includes(profile.id)) {
             state.invMatches.push(profile.id);
             openMatchModal({
               title: `¡Match con ${profile.name}!`,
               subtitle: 'El joven aceptó el vínculo. Iniciá la due diligence cuando quieras.',
               cta: () => openInvDetail(profile.id)
             });
-          } else {
-            showToast('Perfil agregado a tu shortlist.');
           }
         } else {
           showToast('Pasaste. Buscamos otro calce.');
