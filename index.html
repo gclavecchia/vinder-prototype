@@ -600,11 +600,45 @@
         opacity: 0;
       }
     }
+
+    /* ====== DESKTOP LAYOUT ====== */
+    body.desktop .device-wrap { display: none; }
+    body.desktop #desktop-shell { display: flex !important; }
+    body.mobile  #desktop-shell { display: none !important; }
+    body.mobile  #btn-toggle-layout-mobile { display: flex !important; }
+
+    .desktop-shell { width:100%; height:100vh; display:flex; flex-direction:column; background:#eef2f7; overflow:hidden; }
+    .desk-topbar { height:56px; background:#fff; border-bottom:1px solid #e5ecf3; display:flex; align-items:center; justify-content:space-between; padding:0 24px; flex-shrink:0; gap:16px; }
+    .desk-brand { display:flex; align-items:center; gap:10px; }
+    .desk-brand img { height:32px; width:auto; }
+    .desk-topbar-actions { display:flex; align-items:center; gap:12px; }
+    .desk-toggle-btn { display:flex; align-items:center; gap:6px; padding:7px 14px; border-radius:10px; border:1px solid #e5ecf3; background:#f8fafc; color:#334155; font-size:13px; font-weight:500; cursor:pointer; transition:background 150ms,border-color 150ms; }
+    .desk-toggle-btn:hover { background:#f1f5f9; border-color:#cbd5e1; }
+    .desk-toggle-btn--mobile { position:fixed; bottom:24px; right:24px; z-index:200; width:44px; height:44px; padding:0; border-radius:50%; background:#0a1d33; color:#fff; border:none; box-shadow:0 4px 16px rgba(10,29,51,.25); display:none; align-items:center; justify-content:center; }
+    .desk-toggle-btn--mobile:hover { background:#10b981; }
+    .desk-grid { flex:1; display:grid; grid-template-columns:320px 1fr 360px; overflow:hidden; }
+    .desk-panel { height:100%; overflow-y:auto; overflow-x:hidden; background:#fff; }
+    .desk-panel--sidebar { border-right:1px solid #e5ecf3; }
+    .desk-panel--feed { background:#f8fafc; border-right:1px solid #e5ecf3; }
+    .desk-panel--right { display:flex; flex-direction:column; }
+    .desk-tabs { display:flex; align-items:center; border-bottom:1px solid #e5ecf3; background:#fff; padding:0 16px; flex-shrink:0; gap:4px; }
+    .desk-tab { display:flex; align-items:center; gap:6px; padding:12px 16px; border:none; background:transparent; color:#64748b; font-size:13px; font-weight:500; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:color 150ms,border-color 150ms; }
+    .desk-tab.active { color:#0a1d33; border-bottom-color:#10b981; }
+    .desk-tab-content { display:none; flex:1; overflow-y:auto; overflow-x:hidden; }
+    .desk-tab-content--active { display:block; }
+    body.desktop .screen { display:flex !important; flex:unset; height:100%; overflow-y:auto; }
+    body.desktop .bottom-nav { display:none !important; }
+    .desk-context-chips { display:flex; align-items:center; gap:8px; }
+    .desk-chip { display:flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; background:#f1f5f9; border:1px solid #e2e8f0; font-size:12px; font-weight:500; color:#334155; }
+    .desk-chip--score { background:#ecfdf5; border-color:#a7f3d0; color:#065f46; font-weight:700; }
   </style>
 </head>
 
 <body>
   <div class="device-wrap">
+    <button id="btn-toggle-layout-mobile" class="desk-toggle-btn desk-toggle-btn--mobile" onclick="toggleLayout()" title="Cambiar a vista desktop" style="display:none">
+      <i data-lucide="monitor" class="w-4 h-4"></i>
+    </button>
     <div class="device" id="device">
 
       <!-- ============== SPLASH ============== -->
@@ -1018,12 +1052,44 @@
     </div>
   </div>
 
+  <!-- ============== DESKTOP SHELL ============== -->
+  <div id="desktop-shell" class="desktop-shell" style="display:none">
+    <div class="desk-topbar">
+      <div class="desk-brand"><img src="logo.png" alt="Vinder" class="h-8 w-auto" /></div>
+      <div class="desk-topbar-actions">
+        <div id="desk-context" class="desk-context-chips"></div>
+        <button id="btn-toggle-layout" class="desk-toggle-btn" onclick="toggleLayout()" title="Alternar vista">
+          <i data-lucide="smartphone" class="w-4 h-4"></i><span>Vista mobile</span>
+        </button>
+      </div>
+    </div>
+    <div class="desk-grid">
+      <aside id="desk-sidebar" class="desk-panel desk-panel--sidebar"></aside>
+      <main  id="desk-feed"    class="desk-panel desk-panel--feed"></main>
+      <div   id="desk-panel"   class="desk-panel desk-panel--right">
+        <div class="desk-tabs">
+          <button class="desk-tab active" data-tab="detail" onclick="switchPanelTab('detail')">
+            <i data-lucide="file-text" class="w-4 h-4"></i> Detalle
+          </button>
+          <button class="desk-tab" data-tab="matches" onclick="switchPanelTab('matches')">
+            <i data-lucide="heart-handshake" class="w-4 h-4"></i> Matches
+          </button>
+        </div>
+        <div id="desk-panel-detail"  class="desk-tab-content desk-tab-content--active"></div>
+        <div id="desk-panel-matches" class="desk-tab-content"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // -------- DATA --------
     // -------- STATE --------
     const STORAGE_KEY = 'vinder_role';
+    const LAYOUT_KEY  = 'vinder_layout';
     const state = {
       role: localStorage.getItem(STORAGE_KEY) || null,
+      layout: null,          // 'mobile' | 'desktop' — se inicializa en init()
+      panelTab: 'detail',    // 'detail' | 'matches'
       jovenActivoIdx: 0,
       jovenIdx: 0,
       invIdx: 0,
@@ -1115,8 +1181,29 @@
         </div>`;
     }
 
+    // -------- LAYOUT (desktop / mobile) --------
+    function applyLayoutClass() {
+      document.body.classList.toggle('desktop', state.layout === 'desktop');
+      document.body.classList.toggle('mobile',  state.layout === 'mobile');
+    }
+    function toggleLayout() {
+      state.layout = state.layout === 'desktop' ? 'mobile' : 'desktop';
+      localStorage.setItem(LAYOUT_KEY, state.layout);
+      renderLayout();
+    }
+    function switchPanelTab(tab) {
+      state.panelTab = tab;
+      document.querySelectorAll('.desk-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+      document.querySelectorAll('.desk-tab-content').forEach(el => el.classList.toggle('desk-tab-content--active', el.id === `desk-panel-${tab}`));
+    }
+    function renderLayout() {   // implementación real en Tasks 2-4
+      applyLayoutClass();
+      refreshIcons();
+    }
+
     // -------- ROUTING --------
     function showScreen(id) {
+      if (state.layout === 'desktop') return; // en desktop manda renderLayout()
       $$('.screen').forEach(s => s.classList.remove('active'));
       const target = document.getElementById(id);
       if (target) target.classList.add('active');
