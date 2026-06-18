@@ -1396,7 +1396,8 @@
       const empty = $('#joven-empty');
       if (!stack) return;
 
-      const remaining = data.instrumentos.length - state.jovenIdx;
+      const instrumentos = instrumentosDelJoven();
+      const remaining = instrumentos.length - state.jovenIdx;
       $('#joven-counter').textContent = remaining;
 
       if (remaining <= 0) {
@@ -1407,7 +1408,7 @@
       }
       empty.classList.add('hidden');
 
-      const visible = data.instrumentos.slice(state.jovenIdx, state.jovenIdx + 3);
+      const visible = instrumentos.slice(state.jovenIdx, state.jovenIdx + 3);
       stack.innerHTML = visible.map((inst, idx) => instrumentCardHTML(inst, idx)).reverse().join('');
       refreshIcons();
     }
@@ -1468,10 +1469,11 @@
 
     function swipeJoven(direction) {
       if (state.isAnimating) return;
-      const remaining = data.instrumentos.length - state.jovenIdx;
+      const instrumentos = instrumentosDelJoven();
+      const remaining = instrumentos.length - state.jovenIdx;
       if (remaining <= 0) return;
 
-      const inst = data.instrumentos[state.jovenIdx];
+      const inst = instrumentos[state.jovenIdx];
       const topCard = $('#joven-stack .swipe-card[data-stack="0"]');
       if (!topCard) return;
 
@@ -1483,15 +1485,13 @@
         state.jovenIdx += 1;
 
         if (direction === 'accept') {
-          if (inst.matchOnAccept && !state.jovenMatches.includes(inst.id)) {
+          if (!state.jovenMatches.includes(inst.id)) {
             state.jovenMatches.push(inst.id);
             openMatchModal({
               title: `¡Match con ${inst.nombre}!`,
               subtitle: 'Ambos lados aceptaron el vínculo. Ya podés iniciar el contacto.',
               cta: () => openJovenDetail(inst.id)
             });
-          } else {
-            showToast('Postulación enviada. Esperando respuesta.');
           }
         } else {
           showToast('Pasaste. Buscamos otro calce.');
@@ -1515,7 +1515,7 @@
       const count = $('#joven-matches-count');
       if (!list) return;
 
-      const items = state.jovenMatches.map(id => data.instrumentos.find(i => i.id === id)).filter(Boolean);
+      const items = state.jovenMatches.map(id => MODELO.instrumentos.find(i => i.id === id)).filter(Boolean);
       count.textContent = items.length;
 
       if (items.length === 0) {
@@ -1543,7 +1543,7 @@
 
     // -------- JOVEN DETAIL --------
     function openJovenDetail(id) {
-      const inst = data.instrumentos.find(i => i.id === id);
+      const inst = MODELO.instrumentos.find(i => i.id === id);
       if (!inst) return;
       closeMatchModal();
 
