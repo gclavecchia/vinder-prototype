@@ -672,9 +672,14 @@
             <p class="section-title">Mi perfil</p>
             <h2 class="text-xl font-bold text-navy-900 mt-1">Tu Vinder Score</h2>
           </div>
-          <button class="icon-btn" onclick="switchRole()" title="Cambiar de rol">
-            <i data-lucide="repeat" class="w-4 h-4"></i>
-          </button>
+          <div class="flex items-center gap-2">
+            <button class="icon-btn" onclick="openUserSelector()" title="Cambiar usuario">
+              <i data-lucide="users" class="w-4 h-4"></i>
+            </button>
+            <button class="icon-btn" onclick="switchRole()" title="Cambiar de rol">
+              <i data-lucide="repeat" class="w-4 h-4"></i>
+            </button>
+          </div>
         </header>
 
         <div class="px-5 pb-6" id="joven-perfil-body"></div>
@@ -997,6 +1002,18 @@
 
       <!-- ============== TOAST ============== -->
       <div id="toast" class="toast">Pasaste. Buscamos otro calce.</div>
+
+      <!-- ============== USER SELECTOR PANEL ============== -->
+      <div id="user-selector-panel" class="absolute inset-0 z-50 flex-col bg-white" style="display:none">
+        <header class="px-5 pt-6 pb-4 flex items-center justify-between border-b border-navy-100">
+          <div>
+            <p class="section-title">Demo · Perfiles disponibles</p>
+            <h2 class="text-xl font-bold text-navy-900 mt-1">Elegí un joven</h2>
+          </div>
+          <button class="icon-btn" onclick="closeUserSelector()"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </header>
+        <div id="user-selector-list" class="flex-1 overflow-y-auto px-5 py-4 space-y-2"></div>
+      </div>
 
     </div>
   </div>
@@ -1956,6 +1973,47 @@
       closeMatchModal();
       if (typeof matchCtaHandler === 'function') matchCtaHandler();
     });
+
+    // -------- USER SELECTOR --------
+    function openUserSelector() {
+      renderUserSelectorList();
+      const panel = $('#user-selector-panel');
+      if (panel) panel.style.display = 'flex';
+      refreshIcons();
+    }
+    function closeUserSelector() {
+      const panel = $('#user-selector-panel');
+      if (panel) panel.style.display = 'none';
+    }
+    function selectUser(idx) {
+      state.jovenActivoIdx = idx;
+      state.jovenIdx = 0;
+      state.jovenSwipes = {};
+      state.jovenMatches = [];
+      closeUserSelector();
+      showScreen('screen-joven-perfil');
+    }
+    function renderUserSelectorList() {
+      const list = $('#user-selector-list');
+      if (!list || !PERFILES) return;
+      list.innerHTML = PERFILES.map((p, idx) => {
+        const active = idx === state.jovenActivoIdx;
+        return `
+        <button class="w-full text-left rounded-2xl border p-4 flex items-center gap-3 ${active ? 'bg-navy-900 border-navy-900' : 'bg-white border-navy-100'}"
+          onclick="selectUser(${idx})">
+          <div class="avatar sm" style="${active ? 'background:rgba(255,255,255,0.15);color:#fff' : ''}">${p.initials}</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-bold truncate ${active ? 'text-white' : 'text-navy-900'}">${p.name}</p>
+            <p class="text-[11px] mt-0.5 truncate ${active ? 'text-white/70' : 'text-slate-500'}">${p.profession} · ${p.sector}</p>
+            <p class="text-[11px] mt-0.5 ${active ? 'text-white/60' : 'text-slate-400'}">${p.ingreso.tipo} · ${p.instrumentosElegibles.length} instrumentos</p>
+          </div>
+          <div class="text-right shrink-0">
+            <p class="text-lg font-extrabold ${active ? 'text-white' : 'text-navy-900'}">${p.score.toFixed(1)}</p>
+            ${active ? '<p class="text-[10px] text-white/60 uppercase tracking-wider">activo</p>' : ''}
+          </div>
+        </button>`;
+      }).join('');
+    }
 
     // -------- TOAST --------
     let toastTimer = null;
