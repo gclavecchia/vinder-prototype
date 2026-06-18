@@ -677,58 +677,7 @@
           </button>
         </header>
 
-        <div class="px-5 pb-6">
-          <div class="rounded-2xl bg-navy-900 text-white p-5 shadow-card relative overflow-hidden">
-            <div class="absolute -top-12 -right-10 w-44 h-44 rounded-full bg-accent-500/20 blur-2xl"></div>
-            <div class="relative flex items-center gap-4">
-              <div class="avatar lg ring-soft">LF</div>
-              <div class="flex-1">
-                <div class="text-lg font-bold">Lucía Fernández</div>
-                <div class="text-xs text-white/70 mt-0.5">27 años · Médica generalista</div>
-                <div class="flex items-center gap-1.5 mt-2 text-xs text-white/80">
-                  <i data-lucide="map-pin" class="w-3.5 h-3.5 text-accent-300"></i>
-                  <span>La Plata → América (Rivadavia, PBA)</span>
-                </div>
-              </div>
-            </div>
-            <p class="relative text-[13px] text-white/75 leading-relaxed mt-4">
-              Médica recién recibida en UNLP, vuelve a su ciudad natal América (partido de Rivadavia) para integrarse al
-              hospital municipal Dr. Saturnino Unzué.
-            </p>
-          </div>
-
-          <div class="mt-5 rounded-2xl bg-white border border-navy-100 shadow-card p-5">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="section-title">Vinder Score</p>
-                <div class="flex items-baseline gap-1 mt-1">
-                  <span class="text-4xl font-extrabold text-navy-900">7.8</span>
-                  <span class="text-sm font-medium text-slate-500">/10</span>
-                </div>
-              </div>
-              <span class="chip accent"><i data-lucide="trending-up" class="w-3 h-3"></i> Apto para financiar</span>
-            </div>
-
-            <div id="joven-score-bars" class="mt-5 space-y-3.5"></div>
-          </div>
-
-          <div class="mt-5 grid grid-cols-2 gap-3">
-            <div class="metric-card">
-              <p class="text-[11px] text-slate-500 font-medium">Monto solicitado</p>
-              <p class="text-base font-bold text-navy-900 mt-1">$80M ARS</p>
-            </div>
-            <div class="metric-card">
-              <p class="text-[11px] text-slate-500 font-medium">Vivienda objetivo</p>
-              <p class="text-base font-bold text-navy-900 mt-1">60 m²</p>
-            </div>
-          </div>
-
-          <button
-            class="mt-6 w-full gradient-cta text-white font-semibold py-3.5 rounded-2xl flex items-center justify-center gap-2"
-            onclick="showScreen('screen-joven-feed')">
-            Ver oportunidades <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </button>
-        </div>
+        <div class="px-5 pb-6" id="joven-perfil-body"></div>
 
         <div class="mt-auto"></div>
         <nav id="nav-joven" class="bottom-nav"></nav>
@@ -1055,27 +1004,6 @@
   <script>
     // -------- DATA --------
     const data = {
-      joven: {
-        name: 'Lucía Fernández',
-        initials: 'LF',
-        age: 27,
-        profession: 'Médica generalista',
-        education: 'UNLP',
-        origin: 'La Plata (UNLP)',
-        destination: 'América · Rivadavia, PBA',
-        monto: 54_600_000,
-        plazo: 20,
-        superficie: 50,
-        score: 8.3,
-        subscores: [
-          { key: 'pago', label: 'Capacidad de pago', detail: 'Cuota proyectada / ingreso del hogar (meta < 25%)', value: 8.4 },
-          { key: 'suelo', label: 'Acceso a suelo', detail: 'Lote en "Mi Tierra" / Banco de Tierras', value: 9.0 },
-          { key: 'anticipo', label: 'Anticipo cubierto', detail: 'El lote computa como equity (LTV)', value: 8.6 },
-          { key: 'formalidad', label: 'Formalidad de ingresos', detail: 'Registración y estabilidad laboral', value: 7.0 }
-        ],
-        narrative: 'Médica recién recibida en UNLP, vuelve a su ciudad natal América (partido de Rivadavia) para integrarse al hospital municipal Dr. Saturnino Unzué.'
-      },
-
       instrumentos: [],
 
       perfilesJoven: [
@@ -1246,6 +1174,7 @@
     const STORAGE_KEY = 'vinder_role';
     const state = {
       role: localStorage.getItem(STORAGE_KEY) || null,
+      jovenActivoIdx: 0,
       jovenIdx: 0,
       invIdx: 0,
       jovenSwipes: {},
@@ -1278,6 +1207,27 @@
       if (window.lucide && lucide.createIcons) lucide.createIcons();
     }
 
+    // -------- SUBSCORE METADATA --------
+    const SUBSCORE_META = [
+      { key: 'pago',       label: 'Capacidad de pago',      detail: 'Cuota proyectada / ingreso del hogar (meta < 25%)' },
+      { key: 'suelo',      label: 'Acceso a suelo',          detail: 'Lote en "Mi Tierra" / Banco de Tierras' },
+      { key: 'anticipo',   label: 'Anticipo cubierto',       detail: 'El lote computa como equity (LTV)' },
+      { key: 'formalidad', label: 'Formalidad de ingresos',  detail: 'Registración y estabilidad laboral' }
+    ];
+
+    // -------- JOVEN ACTIVO --------
+    function jovenActivo() {
+      return PERFILES[state.jovenActivoIdx];
+    }
+    function instrumentosDelJoven() {
+      const j = jovenActivo();
+      return j.instrumentosElegibles
+        .map(id => MODELO.instrumentos.find(i => i.id === id))
+        .filter(Boolean);
+    }
+
+    function renderContextoTerritorial() { return ''; }
+
     // -------- ROUTING --------
     function showScreen(id) {
       $$('.screen').forEach(s => s.classList.remove('active'));
@@ -1286,7 +1236,7 @@
       target?.scrollTo?.({ top: 0 });
 
       // Render dynamic content per screen
-      if (id === 'screen-joven-perfil') renderJovenScoreBars();
+      if (id === 'screen-joven-perfil') renderJovenPerfil();
       if (id === 'screen-joven-feed') renderJovenStack();
       if (id === 'screen-joven-matches') renderJovenMatches();
       if (id === 'screen-inv-feed') renderInvStack();
@@ -1366,18 +1316,78 @@
     function renderJovenScoreBars() {
       const wrap = $('#joven-score-bars');
       if (!wrap) return;
-      wrap.innerHTML = data.joven.subscores.map(s => `
-      <div>
-        <div class="flex items-center justify-between mb-1.5">
-          <div>
-            <span class="text-sm font-semibold text-navy-900">${s.label}</span>
-            <span class="text-[11px] text-slate-500 block">${s.detail}</span>
+      const j = jovenActivo();
+      wrap.innerHTML = SUBSCORE_META.map((meta, i) => {
+        const value = j.subscores[i];
+        return `
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <div>
+              <span class="text-sm font-semibold text-navy-900">${meta.label}</span>
+              <span class="text-[11px] text-slate-500 block">${meta.detail}</span>
+            </div>
+            <span class="text-sm font-bold text-navy-900">${value.toFixed(1)}</span>
           </div>
-          <span class="text-sm font-bold text-navy-900">${s.value.toFixed(1)}</span>
+          <div class="bar-track"><div class="bar-fill" style="width: ${value * 10}%"></div></div>
+        </div>`;
+      }).join('');
+    }
+
+    // -------- JOVEN PERFIL --------
+    function renderJovenPerfil() {
+      const j = jovenActivo();
+      const body = $('#joven-perfil-body');
+      if (!body) return;
+      body.innerHTML = `
+        <div class="rounded-2xl bg-navy-900 text-white p-5 shadow-card relative overflow-hidden">
+          <div class="absolute -top-12 -right-10 w-44 h-44 rounded-full bg-accent-500/20 blur-2xl"></div>
+          <div class="relative flex items-center gap-4">
+            <div class="avatar lg ring-soft">${j.initials}</div>
+            <div class="flex-1">
+              <div class="text-lg font-bold">${j.name}</div>
+              <div class="text-xs text-white/70 mt-0.5">${j.age} años · ${j.profession}</div>
+              <div class="flex items-center gap-1.5 mt-2 text-xs text-white/80">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-accent-300"></i><span>${j.ciudad}</span>
+              </div>
+            </div>
+          </div>
+          <p class="relative text-[13px] text-white/75 leading-relaxed mt-4">${j.narrative}</p>
         </div>
-        <div class="bar-track"><div class="bar-fill" style="width: ${s.value * 10}%"></div></div>
-      </div>
-    `).join('');
+
+        <div class="mt-5 rounded-2xl bg-white border border-navy-100 shadow-card p-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="section-title">Vinder Score</p>
+              <div class="flex items-baseline gap-1 mt-1">
+                <span class="text-4xl font-extrabold text-navy-900">${j.score.toFixed(1)}</span>
+                <span class="text-sm font-medium text-slate-500">/10</span>
+              </div>
+            </div>
+            <span class="chip accent"><i data-lucide="trending-up" class="w-3 h-3"></i> Apto para financiar</span>
+          </div>
+          <div id="joven-score-bars" class="mt-5 space-y-3.5"></div>
+        </div>
+
+        <div class="mt-5 grid grid-cols-2 gap-3">
+          <div class="metric-card">
+            <p class="text-[11px] text-slate-500 font-medium">Monto solicitado</p>
+            <p class="text-base font-bold text-navy-900 mt-1">${fmtCompact(j.montoSolicitado)}</p>
+          </div>
+          <div class="metric-card">
+            <p class="text-[11px] text-slate-500 font-medium">Vivienda objetivo</p>
+            <p class="text-base font-bold text-navy-900 mt-1">${j.superficie} m²</p>
+          </div>
+        </div>
+
+        ${renderContextoTerritorial()}
+
+        <button class="mt-6 w-full gradient-cta text-white font-semibold py-3.5 rounded-2xl flex items-center justify-center gap-2"
+          onclick="showScreen('screen-joven-feed')">
+          Ver oportunidades <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      `;
+      renderJovenScoreBars();
+      refreshIcons();
     }
 
     // -------- JOVEN FEED (instrumentos) --------
@@ -1538,8 +1548,9 @@
       closeMatchModal();
 
       const esCredito = inst.categoria === 'credito';
-      const ingresoHogar = 2_473_500; // ≈ USD 1.700 al MEP ($1.455) — núcleo §5
-      const cuota = esCredito ? cuotaMensual(data.joven.monto, inst.tasaNum, inst.plazoNum) : 0;
+      const j = jovenActivo();
+      const ingresoHogar = j.ingreso.monto;
+      const cuota = esCredito ? cuotaMensual(j.montoSolicitado, inst.tasaNum, inst.plazoNum) : 0;
       const costoTotal = cuota * inst.plazoNum * 12;
       const ratioPct = esCredito ? Math.round((cuota / ingresoHogar) * 100) : 0;
       const okRatio = ratioPct <= 25;
@@ -1557,7 +1568,7 @@
           </div>
           <div class="rounded-xl border p-3 flex items-start gap-2 ${okRatio ? 'bg-accent-50 border-accent-100' : 'bg-amber-50 border-amber-200'}">
             <i data-lucide="${okRatio ? 'check-circle-2' : 'alert-triangle'}" class="w-4 h-4 mt-0.5 ${okRatio ? 'text-accent-700' : 'text-amber-700'}"></i>
-            <p class="text-xs leading-tight ${okRatio ? 'text-accent-700' : 'text-amber-700'}">Relación cuota/ingreso ${okRatio ? 'dentro' : 'por encima'} del tope prudencial del 25% (BCRA). Préstamo de ${fmtARS(data.joven.monto)} con el lote como anticipo.</p>
+            <p class="text-xs leading-tight ${okRatio ? 'text-accent-700' : 'text-amber-700'}">Relación cuota/ingreso ${okRatio ? 'dentro' : 'por encima'} del tope prudencial del 25% (BCRA). Préstamo de ${fmtARS(j.montoSolicitado)} con el lote como anticipo.</p>
           </div>
           <div class="divider-soft pt-3 grid grid-cols-2 gap-3">
             <div><p class="text-xs text-slate-500">Costo total</p><p class="text-sm font-bold text-navy-900 mt-0.5">${fmtARS(Math.round(costoTotal))}</p></div>
