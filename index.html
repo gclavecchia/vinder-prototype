@@ -1243,7 +1243,44 @@
         .filter(Boolean);
     }
 
-    function renderContextoTerritorial() { return ''; }
+    function renderContextoTerritorial() {
+      if (!MODELO || !MODELO.territorio || !MODELO.macro_jun2026) return '';
+      const t = MODELO.territorio;
+      const m = MODELO.macro_jun2026;
+      const pct = (x) => (x * 100).toFixed(1).replace('.', ',') + '%';
+      return `
+        <div class="mt-5 rounded-2xl bg-white border border-navy-100 shadow-card p-5">
+          <p class="section-title">Contexto territorial</p>
+          <div class="mt-4 grid grid-cols-2 gap-3">
+            <div>
+              <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Localidad</p>
+              <p class="text-sm font-bold text-navy-900 mt-0.5">${t.cabecera} · ${t.partido}</p>
+            </div>
+            <div>
+              <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Población (2022)</p>
+              <p class="text-sm font-bold text-navy-900 mt-0.5">${t.poblacion_america_2022.toLocaleString('es-AR')} hab.</p>
+            </div>
+            <div>
+              <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Crecimiento 2010–2022</p>
+              <p class="text-sm font-bold text-navy-900 mt-0.5">+${pct(t.var_america)}</p>
+            </div>
+            <div>
+              <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Intendente</p>
+              <p class="text-sm font-bold text-navy-900 mt-0.5 truncate">${t.intendente}</p>
+            </div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-navy-100 grid grid-cols-2 gap-3">
+            <div>
+              <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Valor UVA (jun 2026)</p>
+              <p class="text-sm font-bold text-navy-900 mt-0.5">$${m.uva_ars.toLocaleString('es-AR')}</p>
+            </div>
+            <div>
+              <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Construcción estándar</p>
+              <p class="text-sm font-bold text-navy-900 mt-0.5">USD ${m.construccion_usd_m2.estandar.toLocaleString('es-AR')}/m²</p>
+            </div>
+          </div>
+        </div>`;
+    }
 
     // -------- ROUTING --------
     function showScreen(id) {
