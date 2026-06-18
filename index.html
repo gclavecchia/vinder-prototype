@@ -1020,10 +1020,6 @@
 
   <script>
     // -------- DATA --------
-    const data = {
-      instrumentos: []
-    };
-
     // -------- STATE --------
     const STORAGE_KEY = 'vinder_role';
     const state = {
@@ -1941,7 +1937,6 @@
       }
       MODELO = modelo;
       PERFILES = perfiles;
-      data.instrumentos = MODELO.instrumentos;
 
       renderBottomNavs();
 
