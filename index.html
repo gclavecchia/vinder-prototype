@@ -1958,6 +1958,7 @@
 
     // -------- INIT --------
     let MODELO = null;
+    let PERFILES = null;
 
     async function loadModelo() {
       const res = await fetch('modelo.json');
@@ -1965,25 +1966,41 @@
       return res.json();
     }
 
-    function showFetchError() {
+    async function loadPerfiles() {
+      const res = await fetch('perfiles.json');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    }
+
+    function showFetchError(archivo) {
       const device = document.getElementById('device');
       if (!device) return;
       device.innerHTML =
         '<div style="padding:32px;text-align:center;font-family:sans-serif;color:#0a1d33">' +
         '<p style="font-weight:700;font-size:18px;margin-bottom:8px">No se pudo cargar el modelo de datos</p>' +
-        '<p style="font-size:14px;color:#64748b">Revisá que <code>modelo.json</code> esté disponible y recargá la página.</p>' +
+        '<p style="font-size:14px;color:#64748b">Revisá que <code>' + archivo + '</code> esté disponible y recargá la página.</p>' +
         '</div>';
     }
 
     async function init() {
+      let modelo, perfiles;
       try {
-        MODELO = await loadModelo();
-        data.instrumentos = MODELO.instrumentos;
+        modelo = await loadModelo();
       } catch (err) {
         console.error('Error cargando modelo.json:', err);
-        showFetchError();
+        showFetchError('modelo.json');
         return;
       }
+      try {
+        perfiles = await loadPerfiles();
+      } catch (err) {
+        console.error('Error cargando perfiles.json:', err);
+        showFetchError('perfiles.json');
+        return;
+      }
+      MODELO = modelo;
+      PERFILES = perfiles;
+      data.instrumentos = MODELO.instrumentos;
 
       renderBottomNavs();
 
