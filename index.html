@@ -699,6 +699,7 @@
         </div>
       </section>
 
+      <div id="mobile-anchor-joven" data-screens="screen-joven-perfil,screen-joven-feed,screen-joven-matches,screen-joven-detail" style="display:none"></div>
       <!-- ============== JOVEN — PERFIL ============== -->
       <section id="screen-joven-perfil" class="screen">
         <header class="px-5 pt-6 pb-4 flex items-center justify-between">
@@ -793,6 +794,7 @@
         <nav id="nav-joven-detail" class="bottom-nav mt-auto"></nav>
       </section>
 
+      <div id="mobile-anchor-inv" data-screens="screen-inv-perfil,screen-inv-dashboard,screen-inv-feed,screen-inv-matches,screen-inv-detail" style="display:none"></div>
       <!-- ============== INVERSOR — PERFIL ============== -->
       <section id="screen-inv-perfil" class="screen">
         <header class="px-5 pt-6 pb-4 flex items-center justify-between">
@@ -1196,10 +1198,52 @@
       document.querySelectorAll('.desk-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
       document.querySelectorAll('.desk-tab-content').forEach(el => el.classList.toggle('desk-tab-content--active', el.id === `desk-panel-${tab}`));
     }
-    function renderLayout() {   // implementación real en Tasks 2-4
+    function reparentToDesktop(screenId, slotId) {
+      const section = document.getElementById(screenId);
+      const slot = document.getElementById(slotId);
+      if (!section || !slot) return;
+      slot.appendChild(section);
+    }
+    function returnToMobile(anchorId) {
+      const anchor = document.getElementById(anchorId);
+      if (!anchor) return;
+      const ids = (anchor.dataset.screens || '').split(',').filter(Boolean);
+      let ref = anchor;
+      ids.forEach(id => {
+        const section = document.getElementById(id);
+        if (section) { ref.insertAdjacentElement('afterend', section); ref = section; }
+      });
+    }
+    function renderLayout() {
       applyLayoutClass();
+      if (state.layout === 'desktop') renderLayoutDesktop();
+      else renderLayoutMobile();
       refreshIcons();
     }
+    function renderLayoutMobile() {
+      returnToMobile('mobile-anchor-joven');
+      returnToMobile('mobile-anchor-inv');
+      ['desk-sidebar','desk-feed','desk-panel-detail','desk-panel-matches'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.innerHTML = '';
+      });
+      if (state.role === 'joven') showScreen('screen-joven-perfil');
+      else if (state.role === 'inversor') showScreen('screen-inv-perfil');
+      else showScreen('screen-splash');
+    }
+    function renderLayoutDesktop() {
+      if (state.role === 'joven') renderLayoutDesktopJoven();
+      else if (state.role === 'inversor') renderLayoutDesktopInversor();
+    }
+    function renderLayoutDesktopJoven() {
+      reparentToDesktop('screen-joven-perfil', 'desk-sidebar');
+      reparentToDesktop('screen-joven-feed', 'desk-feed');
+      renderRightPanelJoven();
+      renderJovenPerfil();
+      renderJovenStack();
+    }
+    // stubs temporales — reemplazados por Tasks 3 y 4
+    function renderRightPanelJoven() {}
+    function renderLayoutDesktopInversor() {}
 
     // -------- ROUTING --------
     function showScreen(id) {
