@@ -708,6 +708,9 @@
             <h2 class="text-xl font-bold text-navy-900 mt-1">Tu Vinder Score</h2>
           </div>
           <div class="flex items-center gap-2">
+            <button class="icon-btn" onclick="backToSplash()" title="Volver al inicio">
+              <i data-lucide="home" class="w-4 h-4"></i>
+            </button>
             <button class="icon-btn" onclick="openUserSelector()" title="Cambiar usuario">
               <i data-lucide="users" class="w-4 h-4"></i>
             </button>
@@ -802,9 +805,14 @@
             <p class="section-title">Mi perfil</p>
             <h2 class="text-xl font-bold text-navy-900 mt-1">Mutual Bonaerense</h2>
           </div>
-          <button class="icon-btn" onclick="switchRole()" title="Cambiar de rol">
-            <i data-lucide="repeat" class="w-4 h-4"></i>
-          </button>
+          <div class="flex items-center gap-2">
+            <button class="icon-btn" onclick="backToSplash()" title="Volver al inicio">
+              <i data-lucide="home" class="w-4 h-4"></i>
+            </button>
+            <button class="icon-btn" onclick="switchRole()" title="Cambiar de rol">
+              <i data-lucide="repeat" class="w-4 h-4"></i>
+            </button>
+          </div>
         </header>
 
         <div class="px-5 pb-6">
